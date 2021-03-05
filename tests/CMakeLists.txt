@@ -13,3 +13,9 @@ add_test(test_chmm_reader test_chmm_reader)
 add_executable(test_ess_reader test_ess_reader.cpp)
 target_link_libraries(test_ess_reader Spec_Viterbi)
 add_test(test_ess_reader test_ess_reader)
+
+# GraphBLAS implementation tests
+
+add_executable(test_GraphBLAS_impl test_GraphBLAS_impl.cpp)
+target_link_libraries(test_GraphBLAS_impl Spec_Viterbi)
+add_test(test_GraphBLAS_impl test_GraphBLAS_impl)

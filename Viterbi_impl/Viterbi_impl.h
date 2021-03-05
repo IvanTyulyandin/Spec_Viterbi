@@ -5,6 +5,6 @@
 // Viterbi algorithm implementation class
 class Viterbi_impl {
   public:
-    virtual HMM::Probability_t run_Viterbi(const HMM& hmm,
-                                           const HMM::Seq_vec_t& emit_vec) const = 0;
+    [[nodiscard]] virtual HMM::Prob_vec_t run_Viterbi(const HMM& hmm,
+                                                      const HMM::Emit_seq_t& seq) const = 0;
 };
