@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GraphBLAS_manager.h"
-#include "HMM.h"
 #include "Viterbi_spec_impl.h"
 
 #include <unordered_map>

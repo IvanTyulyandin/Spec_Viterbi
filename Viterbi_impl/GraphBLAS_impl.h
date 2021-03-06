@@ -1,6 +1,5 @@
 #pragma once
 
-#include "HMM.h"
 #include "Viterbi_impl.h"
 
 class GraphBLAS_impl : public Viterbi_impl {
