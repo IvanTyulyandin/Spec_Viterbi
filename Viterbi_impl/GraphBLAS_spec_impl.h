@@ -17,7 +17,7 @@ class GraphBLAS_spec_impl : public Viterbi_spec_impl {
 
     [[nodiscard]] HMM::Prob_vec_t run_Viterbi_spec(const HMM::Emit_seq_t& seq) const override;
 
-    ~GraphBLAS_spec_impl();
+    ~GraphBLAS_spec_impl() override;
 
   private:
     std::vector<GrB_Matrix> emit_pr_x_start_pr;

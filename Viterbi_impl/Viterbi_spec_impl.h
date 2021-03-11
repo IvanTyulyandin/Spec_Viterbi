@@ -6,4 +6,6 @@
 class Viterbi_spec_impl {
   public:
     [[nodiscard]] virtual HMM::Prob_vec_t run_Viterbi_spec(const HMM::Emit_seq_t& seq) const = 0;
+
+    virtual ~Viterbi_spec_impl() = default;
 };
