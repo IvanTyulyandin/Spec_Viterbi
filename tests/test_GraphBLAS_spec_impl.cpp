@@ -6,7 +6,7 @@
 
 int main() {
 
-    launch_GraphBLAS();
+    GraphBLAS_manager::get_instance().launch_GraphBLAS();
 
     auto hmm = read_HMM("../chmm_files/test_chmm.chmm");
     auto seq = read_emit_seq("../ess_files/test_seq.ess")[0];
@@ -31,8 +31,6 @@ int main() {
     is_test_passed &= (res_lvl_1.size() == expected_res.size()) &&
                       (res_lvl_2.size() == expected_res.size()) &&
                       (res_lvl_3.size() == expected_res.size());
-
-    stop_GraphBLAS();
 
     return 1 - static_cast<int>(is_test_passed);
 }

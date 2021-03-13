@@ -2,11 +2,9 @@
 
 #include "HMM.h"
 
-using Obs_handler_t = GraphBLAS_spec_impl::Obs_handler_t;
+using Obs_handler_t = std::unordered_map<std::vector<size_t>, GrB_Matrix, HMM::Emit_seq_hasher>;
 
 namespace {
-
-constexpr size_t EMPTY = 0;
 
 void free_obs_handler(Obs_handler_t& handler) {
     for (auto& [k, v] : handler) {
@@ -25,11 +23,11 @@ void add_level(Obs_handler_t& prev, const std::vector<GrB_Matrix>& updater, HMM:
 
             auto handler = GrB_Matrix();
             auto info = GrB_Matrix_new(&handler, GrB_FP32, mat_size, mat_size);
-            check_for_error(info);
+            GraphBLAS_manager::check_for_error(info);
 
             info = GrB_mxm(handler, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32, updater[i], v,
                            GrB_NULL);
-            check_for_error(info);
+            GraphBLAS_manager::check_for_error(info);
 
             res.insert({std::move(new_key), handler});
         }
@@ -48,12 +46,12 @@ GraphBLAS_spec_impl::GraphBLAS_spec_impl(const HMM& hmm, size_t level)
     // Transposed HMM transition matrix
     auto transposed_transitions = GrB_Matrix();
     auto info = GrB_Matrix_new(&transposed_transitions, GrB_FP32, states_num, states_num);
-    check_for_error(info);
+    GraphBLAS_manager::check_for_error(info);
 
     info =
         GrB_Matrix_build_FP32(transposed_transitions, hmm.trans_cols.data(), hmm.trans_rows.data(),
                               hmm.trans_probs.data(), hmm.trans_num, GrB_FIRST_FP32);
-    check_for_error(info);
+    GraphBLAS_manager::check_for_error(info);
 
     // Read info about states with
     // non zero probabilities to be start
@@ -66,24 +64,24 @@ GraphBLAS_spec_impl::GraphBLAS_spec_impl(const HMM& hmm, size_t level)
 
     auto start_probs = GrB_Matrix();
     info = GrB_Matrix_new(&start_probs, GrB_FP32, states_num, 1);
-    check_for_error(info);
+    GraphBLAS_manager::check_for_error(info);
     info = GrB_Matrix_build_FP32(start_probs, from_0_to_n_ind.data(), n_zeroes_ind.data(),
                                  hmm.start_probabilities.data(), hmm.states_num, GrB_FIRST_FP32);
-    check_for_error(info);
+    GraphBLAS_manager::check_for_error(info);
 
     emit_pr_x_start_pr = std::vector<GrB_Matrix>(hmm.emit_num);
     emit_pr_x_trans_pr = std::vector<GrB_Matrix>(hmm.emit_num);
     for (size_t i = 0; i < hmm.emit_num; ++i) {
         info = GrB_Matrix_new(&(emit_pr_x_start_pr[i]), GrB_FP32, states_num, 1);
-        check_for_error(info);
+        GraphBLAS_manager::check_for_error(info);
         info = GrB_Matrix_new(&(emit_pr_x_trans_pr[i]), GrB_FP32, states_num, states_num);
-        check_for_error(info);
+        GraphBLAS_manager::check_for_error(info);
     }
 
     auto emit_data = HMM::Prob_vec_t(states_num);
     auto emit_probs_diag_mat = GrB_Matrix();
     info = GrB_Matrix_new(&emit_probs_diag_mat, GrB_FP32, states_num, states_num);
-    check_for_error(info);
+    GraphBLAS_manager::check_for_error(info);
 
     for (size_t i = 0; i < hmm.emit_num; ++i) {
 
@@ -96,18 +94,18 @@ GraphBLAS_spec_impl::GraphBLAS_spec_impl(const HMM& hmm, size_t level)
         info = GrB_Matrix_build_FP32(emit_probs_diag_mat, from_0_to_n_ind.data(),
                                      from_0_to_n_ind.data(), emit_data.data(), hmm.states_num,
                                      GrB_FIRST_FP32);
-        check_for_error(info);
+        GraphBLAS_manager::check_for_error(info);
 
         info = GrB_mxm(emit_pr_x_start_pr[i], GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
                        emit_probs_diag_mat, start_probs, GrB_NULL);
-        check_for_error(info);
+        GraphBLAS_manager::check_for_error(info);
 
         info = GrB_mxm(emit_pr_x_trans_pr[i], GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
                        emit_probs_diag_mat, transposed_transitions, GrB_NULL);
-        check_for_error(info);
+        GraphBLAS_manager::check_for_error(info);
 
         info = GrB_Matrix_clear(emit_probs_diag_mat);
-        check_for_error(info);
+        GraphBLAS_manager::check_for_error(info);
     }
 
     GrB_Matrix_free(&transposed_transitions);
@@ -119,7 +117,7 @@ GraphBLAS_spec_impl::GraphBLAS_spec_impl(const HMM& hmm, size_t level)
         for (size_t i = 0; i < hmm.emit_num; ++i) {
             auto copy = GrB_Matrix();
             info = GrB_Matrix_dup(&copy, emit_pr_x_trans_pr[i]);
-            check_for_error(info);
+            GraphBLAS_manager::check_for_error(info);
 
             precalc_obs_handlers.insert({HMM::Emit_seq_t(1, i), copy});
         }
@@ -136,11 +134,11 @@ HMM::Prob_vec_t GraphBLAS_spec_impl::run_Viterbi_spec(const HMM::Emit_seq_t& seq
 
     // Start Viterbi algorithm for seq[0]
     auto info = GrB_Matrix_dup(&result, emit_pr_x_start_pr[seq[0]]);
-    check_for_error(info);
+    GraphBLAS_manager::check_for_error(info);
 
     auto next_probs = GrB_Matrix();
     info = GrB_Matrix_new(&next_probs, GrB_FP32, states_num, 1);
-    check_for_error(info);
+    GraphBLAS_manager::check_for_error(info);
 
     // Viterbi algorithm main part
 
@@ -159,7 +157,7 @@ HMM::Prob_vec_t GraphBLAS_spec_impl::run_Viterbi_spec(const HMM::Emit_seq_t& seq
 
             info = GrB_mxm(next_probs, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
                            obs_handler_matrix, result, GrB_NULL);
-            check_for_error(info);
+            GraphBLAS_manager::check_for_error(info);
             GrB_Matrix_wait(&next_probs);
             std::swap(next_probs, result);
         }
@@ -169,12 +167,12 @@ HMM::Prob_vec_t GraphBLAS_spec_impl::run_Viterbi_spec(const HMM::Emit_seq_t& seq
     for (; i < seq.size(); ++i) {
         info = GrB_mxm(next_probs, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
                        emit_pr_x_trans_pr[seq[i]], result, GrB_NULL);
-        check_for_error(info);
+        GraphBLAS_manager::check_for_error(info);
         GrB_Matrix_wait(&next_probs);
         std::swap(next_probs, result);
     }
 
-    auto res = GrB_Matrix_to_Prob_vec(result);
+    auto res = GraphBLAS_manager::GrB_Matrix_to_Prob_vec(result);
 
     GrB_Matrix_free(&next_probs);
     GrB_Matrix_free(&result);

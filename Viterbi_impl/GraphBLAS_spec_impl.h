@@ -1,8 +1,8 @@
 #pragma once
 
-#include "GraphBLAS_manager.h"
 #include "Viterbi_spec_impl.h"
 
+#include "GraphBLAS_manager.h"
 #include <unordered_map>
 
 class GraphBLAS_spec_impl : public Viterbi_spec_impl {
