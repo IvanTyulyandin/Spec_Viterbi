@@ -17,10 +17,14 @@ GraphBLAS_manager::~GraphBLAS_manager() {
     check_for_error(info);
 }
 
-void GraphBLAS_manager::check_for_error([[maybe_unused]] const GrB_Info& info) {
+void GraphBLAS_manager::check_for_error([[maybe_unused]] const GrB_Info& info,
+                                        std::experimental::source_location s) {
 #ifndef NDEBUG
     if (!(info == GrB_Info::GrB_SUCCESS || info == GrB_Info::GrB_NO_VALUE)) {
-        printf("info: %d error: %s\n", info, GrB_error());
+        std::cerr << "info: " << info << " error: " << GrB_error() << "Debug info\n"
+                  << "    file: " << s.file_name() << '\n'
+                  << "    function: " << s.function_name() << '\n'
+                  << "    line: " << s.line() << "\n\n";
     }
 #endif
 }

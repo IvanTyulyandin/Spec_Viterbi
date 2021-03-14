@@ -1,7 +1,8 @@
 #pragma once
 
-#include "HMM.h"
+#include <experimental/source_location>
 
+#include "HMM.h"
 extern "C" {
 #include "GraphBLAS.h"
 }
@@ -19,7 +20,9 @@ class GraphBLAS_manager {
     // Finalize GraphBLAS
     ~GraphBLAS_manager();
 
-    static void check_for_error(const GrB_Info& info);
+    static void check_for_error(
+        const GrB_Info& info,
+        std::experimental::source_location s = std::experimental::source_location::current());
 
     // Convert from GrB_Matrix to HMM::Prob_vec_t
     // mat expected to be a column
