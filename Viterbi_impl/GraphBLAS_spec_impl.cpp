@@ -41,6 +41,87 @@ void add_level(Obs_handler_t& prev, const std::vector<GrB_Matrix>& updater, HMM:
 
 GraphBLAS_spec_impl::GraphBLAS_spec_impl(const HMM& hmm, size_t level)
     : precalc_obs_handlers(), level(level) {
+    initializer(hmm, level);
+}
+
+GraphBLAS_spec_impl& GraphBLAS_spec_impl::operator=(const GraphBLAS_spec_impl& rhs) noexcept {
+    deleter();
+    this->states_num = rhs.states_num;
+    this->level = rhs.level;
+    this->emit_pr_x_start_pr = rhs.emit_pr_x_start_pr;
+    this->emit_pr_x_trans_pr = rhs.emit_pr_x_trans_pr;
+    this->precalc_obs_handlers = rhs.precalc_obs_handlers;
+    return *this;
+}
+
+GraphBLAS_spec_impl& GraphBLAS_spec_impl::operator=(GraphBLAS_spec_impl&& rhs) noexcept {
+    deleter();
+    this->states_num = rhs.states_num;
+    this->level = rhs.level;
+    this->emit_pr_x_start_pr = std::move(rhs.emit_pr_x_start_pr);
+    this->emit_pr_x_trans_pr = std::move(rhs.emit_pr_x_trans_pr);
+    this->precalc_obs_handlers = std::move(rhs.precalc_obs_handlers);
+    return *this;
+}
+
+void GraphBLAS_spec_impl::spec_with(const HMM& hmm) { initializer(hmm, level); }
+
+HMM::Prob_vec_t GraphBLAS_spec_impl::run_Viterbi_spec(const HMM::Emit_seq_t& seq) const {
+    auto result = GrB_Matrix();
+
+    // Start Viterbi algorithm for seq[0]
+    auto info = GrB_Matrix_dup(&result, emit_pr_x_start_pr[seq[0]]);
+    GraphBLAS_manager::check_for_error(info);
+
+    auto next_probs = GrB_Matrix();
+    info = GrB_Matrix_new(&next_probs, GrB_FP32, states_num, 1);
+    GraphBLAS_manager::check_for_error(info);
+
+    // Viterbi algorithm main part
+
+    // Use precalculated matrices while it is possible
+    auto obs_handler_matrix = GrB_Matrix();
+
+    auto i = size_t(1);
+    if (level > 1) {
+        while ((seq.size() - i) >= level) {
+            auto obs_to_handle = HMM::Emit_seq_t(level, 0);
+            for (size_t j = 0; j < level; ++j, ++i) {
+                obs_to_handle[j] = seq[i];
+            }
+            // A result must exist in precalc_obs_handlers by construction
+            obs_handler_matrix = precalc_obs_handlers.at(obs_to_handle);
+
+            info = GrB_mxm(next_probs, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
+                           obs_handler_matrix, result, GrB_NULL);
+            GraphBLAS_manager::check_for_error(info);
+            GrB_Matrix_wait(&next_probs);
+            std::swap(next_probs, result);
+        }
+    }
+
+    // Handle the seq tail
+    for (; i < seq.size(); ++i) {
+        info = GrB_mxm(next_probs, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
+                       emit_pr_x_trans_pr[seq[i]], result, GrB_NULL);
+        GraphBLAS_manager::check_for_error(info);
+        GrB_Matrix_wait(&next_probs);
+        std::swap(next_probs, result);
+    }
+
+    auto res = GraphBLAS_manager::GrB_Matrix_to_Prob_vec(result);
+
+    GrB_Matrix_free(&next_probs);
+    GrB_Matrix_free(&result);
+
+    return res;
+}
+
+GraphBLAS_spec_impl::~GraphBLAS_spec_impl() { deleter(); }
+
+// Private methods implementation
+
+void GraphBLAS_spec_impl::initializer(const HMM& hmm, size_t level) {
     states_num = hmm.states_num;
 
     // Transposed HMM transition matrix
@@ -129,58 +210,7 @@ GraphBLAS_spec_impl::GraphBLAS_spec_impl(const HMM& hmm, size_t level)
     }
 }
 
-HMM::Prob_vec_t GraphBLAS_spec_impl::run_Viterbi_spec(const HMM::Emit_seq_t& seq) const {
-    auto result = GrB_Matrix();
-
-    // Start Viterbi algorithm for seq[0]
-    auto info = GrB_Matrix_dup(&result, emit_pr_x_start_pr[seq[0]]);
-    GraphBLAS_manager::check_for_error(info);
-
-    auto next_probs = GrB_Matrix();
-    info = GrB_Matrix_new(&next_probs, GrB_FP32, states_num, 1);
-    GraphBLAS_manager::check_for_error(info);
-
-    // Viterbi algorithm main part
-
-    // Use precalculated matrices while it is possible
-    auto obs_handler_matrix = GrB_Matrix();
-
-    auto i = size_t(1);
-    if (level > 1) {
-        while ((seq.size() - i) >= level) {
-            auto obs_to_handle = HMM::Emit_seq_t(level, 0);
-            for (size_t j = 0; j < level; ++j, ++i) {
-                obs_to_handle[j] = seq[i];
-            }
-            // A result must exist in precalc_obs_handlers by construction
-            obs_handler_matrix = precalc_obs_handlers.at(obs_to_handle);
-
-            info = GrB_mxm(next_probs, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
-                           obs_handler_matrix, result, GrB_NULL);
-            GraphBLAS_manager::check_for_error(info);
-            GrB_Matrix_wait(&next_probs);
-            std::swap(next_probs, result);
-        }
-    }
-
-    // Handle the seq tail
-    for (; i < seq.size(); ++i) {
-        info = GrB_mxm(next_probs, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
-                       emit_pr_x_trans_pr[seq[i]], result, GrB_NULL);
-        GraphBLAS_manager::check_for_error(info);
-        GrB_Matrix_wait(&next_probs);
-        std::swap(next_probs, result);
-    }
-
-    auto res = GraphBLAS_manager::GrB_Matrix_to_Prob_vec(result);
-
-    GrB_Matrix_free(&next_probs);
-    GrB_Matrix_free(&result);
-
-    return res;
-}
-
-GraphBLAS_spec_impl::~GraphBLAS_spec_impl() {
+void GraphBLAS_spec_impl::deleter() {
     // Free internal matrices
     free_obs_handler(precalc_obs_handlers);
     for (auto& m : emit_pr_x_start_pr) {
