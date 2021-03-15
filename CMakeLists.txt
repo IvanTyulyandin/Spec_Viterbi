@@ -7,8 +7,10 @@ add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wno-unused-function -Wno-u
 # Build main part as Spec_Viterbi library
 add_subdirectory(Viterbi_impl)
 
-add_executable(Viterbi_alg main.cpp)
-target_link_libraries(Viterbi_alg Spec_Viterbi)
+add_subdirectory(benchmark)
+
+add_executable(main main.cpp)
+target_link_libraries(main bench_Viterbi)
 
 # Build tests
 include(CTest)
