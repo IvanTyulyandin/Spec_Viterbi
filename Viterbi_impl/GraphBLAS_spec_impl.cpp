@@ -44,27 +44,10 @@ GraphBLAS_spec_impl::GraphBLAS_spec_impl(const HMM& hmm, size_t level)
     initializer(hmm, level);
 }
 
-GraphBLAS_spec_impl& GraphBLAS_spec_impl::operator=(const GraphBLAS_spec_impl& rhs) noexcept {
+void GraphBLAS_spec_impl::spec_with(const HMM& hmm) {
     deleter();
-    this->states_num = rhs.states_num;
-    this->level = rhs.level;
-    this->emit_pr_x_start_pr = rhs.emit_pr_x_start_pr;
-    this->emit_pr_x_trans_pr = rhs.emit_pr_x_trans_pr;
-    this->precalc_obs_handlers = rhs.precalc_obs_handlers;
-    return *this;
+    initializer(hmm, level);
 }
-
-GraphBLAS_spec_impl& GraphBLAS_spec_impl::operator=(GraphBLAS_spec_impl&& rhs) noexcept {
-    deleter();
-    this->states_num = rhs.states_num;
-    this->level = rhs.level;
-    this->emit_pr_x_start_pr = std::move(rhs.emit_pr_x_start_pr);
-    this->emit_pr_x_trans_pr = std::move(rhs.emit_pr_x_trans_pr);
-    this->precalc_obs_handlers = std::move(rhs.precalc_obs_handlers);
-    return *this;
-}
-
-void GraphBLAS_spec_impl::spec_with(const HMM& hmm) { initializer(hmm, level); }
 
 HMM::Prob_vec_t GraphBLAS_spec_impl::run_Viterbi_spec(const HMM::Emit_seq_t& seq) const {
     auto result = GrB_Matrix();
@@ -213,10 +196,15 @@ void GraphBLAS_spec_impl::initializer(const HMM& hmm, size_t level) {
 void GraphBLAS_spec_impl::deleter() {
     // Free internal matrices
     free_obs_handler(precalc_obs_handlers);
+    precalc_obs_handlers = Obs_handler_t();
+
     for (auto& m : emit_pr_x_start_pr) {
         GrB_Matrix_free(&m);
     }
+    emit_pr_x_start_pr = std::vector<GrB_Matrix>();
+
     for (auto& m : emit_pr_x_trans_pr) {
         GrB_Matrix_free(&m);
     }
+    emit_pr_x_trans_pr = std::vector<GrB_Matrix>();
 }
