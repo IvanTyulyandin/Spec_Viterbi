@@ -30,10 +30,9 @@ HMM read_HMM(const std::string& HMM_file_name) {
 
     // Read states with non zero probability to be start/
     auto state_ind = HMM::Index_t(0);
-    auto non_zero_start_prob_num = HMM::Index_t(0);
-    file >> non_zero_start_prob_num;
+    file >> hmm.non_zero_start_probs;
 
-    for (size_t i = 0; i < non_zero_start_prob_num; ++i) {
+    for (size_t i = 0; i < hmm.non_zero_start_probs; ++i) {
         file >> state_ind >> prob_from_file;
         prob_from_file = HMM::to_neg_log(prob_from_file);
         hmm.start_probabilities[state_ind] = prob_from_file;

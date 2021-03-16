@@ -31,6 +31,7 @@ class HMM {
     Index_vec_t trans_cols;
     Prob_vec_t trans_probs;
     Prob_vec_t emissions;
+    Index_t non_zero_start_probs;
     Prob_vec_t start_probabilities;
 
     // Functions to work with Probability_t
