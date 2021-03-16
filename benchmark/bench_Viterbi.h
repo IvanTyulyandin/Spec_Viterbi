@@ -1,5 +1,5 @@
+#include "../Viterbi_impl/GraphBLAS_helper.h"
 #include "../Viterbi_impl/GraphBLAS_impl.h"
-#include "../Viterbi_impl/GraphBLAS_manager.h"
 #include "../Viterbi_impl/data_reader.h"
 #include "benchmark_helper.h"
 
@@ -18,7 +18,7 @@ void benchmark_Viterbi_impls_to_dat_file(const helper::Folder_path_t& chmm_folde
     const auto ess_seq = read_emit_seq(ess_file);
 
     // Implementations setup
-    GraphBLAS_manager::get_instance().launch_GraphBLAS();
+    GraphBLAS_helper::get_instance().launch_GraphBLAS();
 
     // Benchmarked implementations
     const auto impls_to_bench = Vec_Viterbi_impls_t({std::make_shared<GraphBLAS_impl>()});

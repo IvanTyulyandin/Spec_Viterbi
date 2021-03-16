@@ -7,7 +7,7 @@ set(LA_VITERBI_SRC
     data_reader.h data_reader.cpp
     Viterbi_impl.h
     Viterbi_spec_impl.h
-    GraphBLAS_manager.h GraphBLAS_manager.cpp
+    GraphBLAS_helper.h GraphBLAS_helper.cpp
     GraphBLAS_impl.h GraphBLAS_impl.cpp
     GraphBLAS_spec_impl.h GraphBLAS_spec_impl.cpp)
 add_library(Spec_Viterbi ${LA_VITERBI_SRC})

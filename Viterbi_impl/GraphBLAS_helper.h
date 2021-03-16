@@ -9,16 +9,16 @@ extern "C" {
 
 // GraphBLAS can not be initialized and finalized more than once
 
-class GraphBLAS_manager {
+class GraphBLAS_helper {
   public:
-    GraphBLAS_manager(GraphBLAS_manager& other) = delete;
-    void operator=(const GraphBLAS_manager&) = delete;
+    GraphBLAS_helper(GraphBLAS_helper& other) = delete;
+    void operator=(const GraphBLAS_helper&) = delete;
 
     // Init GraphBLAS
     void launch_GraphBLAS();
 
     // Finalize GraphBLAS
-    ~GraphBLAS_manager();
+    ~GraphBLAS_helper();
 
     static void check_for_error(
         const GrB_Info& info,
@@ -28,13 +28,13 @@ class GraphBLAS_manager {
     // mat expected to be a column
     static HMM::Prob_vec_t GrB_Matrix_to_Prob_vec(GrB_Matrix mat);
 
-    static GraphBLAS_manager& get_instance() {
-        static GraphBLAS_manager instance;
+    static GraphBLAS_helper& get_instance() {
+        static GraphBLAS_helper instance;
         return instance;
     }
 
   private:
-    GraphBLAS_manager() = default;
+    GraphBLAS_helper() = default;
 
     static bool is_GraphBLAS_initialized;
 };

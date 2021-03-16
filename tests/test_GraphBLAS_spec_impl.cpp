@@ -1,4 +1,4 @@
-#include "../Viterbi_impl/GraphBLAS_manager.h"
+#include "../Viterbi_impl/GraphBLAS_helper.h"
 #include "../Viterbi_impl/GraphBLAS_spec_impl.h"
 #include "../Viterbi_impl/data_reader.h"
 
@@ -6,7 +6,7 @@
 
 int main() {
 
-    GraphBLAS_manager::get_instance().launch_GraphBLAS();
+    GraphBLAS_helper::get_instance().launch_GraphBLAS();
 
     auto hmm = read_HMM("../chmm_files/test_chmm.chmm");
     auto seq = read_emit_seq("../ess_files/test_seq.ess")[0];

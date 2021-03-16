@@ -1,10 +1,10 @@
-#include "GraphBLAS_manager.h"
+#include "GraphBLAS_helper.h"
 
 #include <iostream>
 
-bool GraphBLAS_manager::is_GraphBLAS_initialized = false;
+bool GraphBLAS_helper::is_GraphBLAS_initialized = false;
 
-void GraphBLAS_manager::launch_GraphBLAS() {
+void GraphBLAS_helper::launch_GraphBLAS() {
     if (!is_GraphBLAS_initialized) {
         auto info = GrB_init(GrB_Mode::GrB_NONBLOCKING);
         check_for_error(info);
@@ -12,13 +12,13 @@ void GraphBLAS_manager::launch_GraphBLAS() {
     }
 }
 
-GraphBLAS_manager::~GraphBLAS_manager() {
+GraphBLAS_helper::~GraphBLAS_helper() {
     auto info = GrB_finalize();
     check_for_error(info);
 }
 
-void GraphBLAS_manager::check_for_error([[maybe_unused]] const GrB_Info& info,
-                                        std::experimental::source_location s) {
+void GraphBLAS_helper::check_for_error([[maybe_unused]] const GrB_Info& info,
+                                       std::experimental::source_location s) {
 #ifndef NDEBUG
     if (!(info == GrB_Info::GrB_SUCCESS || info == GrB_Info::GrB_NO_VALUE)) {
         std::cerr << "info: " << info << " error: " << GrB_error() << "Debug info\n"
@@ -29,7 +29,7 @@ void GraphBLAS_manager::check_for_error([[maybe_unused]] const GrB_Info& info,
 #endif
 }
 
-HMM::Prob_vec_t GraphBLAS_manager::GrB_Matrix_to_Prob_vec(GrB_Matrix mat) {
+HMM::Prob_vec_t GraphBLAS_helper::GrB_Matrix_to_Prob_vec(GrB_Matrix mat) {
 #ifndef NDEBUG
     auto cols = GrB_Index();
     auto deb_info = GrB_Matrix_ncols(&cols, mat);
