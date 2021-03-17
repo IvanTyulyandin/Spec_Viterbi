@@ -37,7 +37,9 @@ class HMM {
     // Functions to work with Probability_t
 
     static bool almost_equal(HMM::Probability_t x, HMM::Probability_t y) {
-        return std::fabs(x - y) <= 0.0001;
+        const auto is_both_inf = (std::numeric_limits<HMM::Probability_t>::infinity() == x) &&
+                                 (std::numeric_limits<HMM::Probability_t>::infinity() == y);
+        return is_both_inf || std::fabs(x - y) <= 0.0001;
     }
 
     static HMM::Probability_t to_neg_log(HMM::Probability_t x) { return -1 * std::log2(x); }

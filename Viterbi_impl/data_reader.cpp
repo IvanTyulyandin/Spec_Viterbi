@@ -26,7 +26,9 @@ HMM read_HMM(const std::string& HMM_file_name) {
 
     // Read number of states
     file >> hmm.states_num;
-    hmm.start_probabilities = HMM::Prob_vec_t(hmm.states_num, 0.0);
+    // Init with transformed 0 probability
+    hmm.start_probabilities =
+        HMM::Prob_vec_t(hmm.states_num, std::numeric_limits<HMM::Probability_t>::infinity());
 
     // Read states with non zero probability to be start/
     auto state_ind = HMM::Index_t(0);
