@@ -24,6 +24,8 @@ class GraphBLAS_helper {
         const GrB_Info& info,
         std::experimental::source_location s = std::experimental::source_location::current());
 
+    static void min_plus_mat_multiply(const GrB_Matrix lhs, const GrB_Matrix rhs, GrB_Matrix res);
+
     // Convert from GrB_Matrix to HMM::Prob_vec_t
     // mat expected to be a column
     static HMM::Prob_vec_t GrB_Matrix_to_Prob_vec(GrB_Matrix mat);

@@ -62,21 +62,18 @@ HMM::Prob_vec_t GraphBLAS_impl::run_Viterbi(const HMM& hmm, const HMM::Emit_seq_
     // Viterbi algorithm
 
     // Count emissions for first symbol and start probabilities
-    info = GrB_mxm(next_probabilites, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
-                   em_probs[seq[0]], result, GrB_NULL);
-    GraphBLAS_helper::check_for_error(info);
+    GraphBLAS_helper::min_plus_mat_multiply(em_probs[seq[0]], result, next_probabilites);
+
     GrB_Matrix_wait(&next_probabilites);
     std::swap(result, next_probabilites);
 
     for (size_t i = 1; i < seq.size(); ++i) {
-        info = GrB_mxm(prob_x_trans, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
-                       em_probs[seq[i]], transposed_transitions, GrB_NULL);
-        GraphBLAS_helper::check_for_error(info);
+
+        GraphBLAS_helper::min_plus_mat_multiply(em_probs[seq[i]], transposed_transitions,
+                                                prob_x_trans);
         GrB_Matrix_wait(&prob_x_trans);
 
-        info = GrB_mxm(next_probabilites, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
-                       prob_x_trans, result, GrB_NULL);
-        GraphBLAS_helper::check_for_error(info);
+        GraphBLAS_helper::min_plus_mat_multiply(prob_x_trans, result, next_probabilites);
         GrB_Matrix_wait(&next_probabilites);
 
         std::swap(result, next_probabilites);

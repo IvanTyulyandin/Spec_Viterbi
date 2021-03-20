@@ -25,9 +25,7 @@ void add_level(Obs_handler_t& prev, const std::vector<GrB_Matrix>& updater, HMM:
             auto info = GrB_Matrix_new(&handler, GrB_FP32, mat_size, mat_size);
             GraphBLAS_helper::check_for_error(info);
 
-            info = GrB_mxm(handler, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32, updater[i], v,
-                           GrB_NULL);
-            GraphBLAS_helper::check_for_error(info);
+            GraphBLAS_helper::min_plus_mat_multiply(updater[i], v, handler);
 
             res.insert({std::move(new_key), handler});
         }
@@ -75,9 +73,8 @@ HMM::Prob_vec_t GraphBLAS_spec_impl::run_Viterbi_spec(const HMM::Emit_seq_t& seq
             // A result must exist in precalc_obs_handlers by construction
             obs_handler_matrix = precalc_obs_handlers.at(obs_to_handle);
 
-            info = GrB_mxm(next_probs, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
-                           obs_handler_matrix, result, GrB_NULL);
-            GraphBLAS_helper::check_for_error(info);
+            GraphBLAS_helper::min_plus_mat_multiply(obs_handler_matrix, result, next_probs);
+
             GrB_Matrix_wait(&next_probs);
             std::swap(next_probs, result);
         }
@@ -85,9 +82,8 @@ HMM::Prob_vec_t GraphBLAS_spec_impl::run_Viterbi_spec(const HMM::Emit_seq_t& seq
 
     // Handle the seq tail
     for (; i < seq.size(); ++i) {
-        info = GrB_mxm(next_probs, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
-                       emit_pr_x_trans_pr[seq[i]], result, GrB_NULL);
-        GraphBLAS_helper::check_for_error(info);
+        GraphBLAS_helper::min_plus_mat_multiply(emit_pr_x_trans_pr[seq[i]], result, next_probs);
+
         GrB_Matrix_wait(&next_probs);
         std::swap(next_probs, result);
     }
@@ -160,13 +156,11 @@ void GraphBLAS_spec_impl::initializer(const HMM& hmm, size_t level) {
                                      GrB_FIRST_FP32);
         GraphBLAS_helper::check_for_error(info);
 
-        info = GrB_mxm(emit_pr_x_start_pr[i], GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
-                       emit_probs_diag_mat, start_probs, GrB_NULL);
-        GraphBLAS_helper::check_for_error(info);
+        GraphBLAS_helper::min_plus_mat_multiply(emit_probs_diag_mat, start_probs,
+                                                emit_pr_x_start_pr[i]);
 
-        info = GrB_mxm(emit_pr_x_trans_pr[i], GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32,
-                       emit_probs_diag_mat, transposed_transitions, GrB_NULL);
-        GraphBLAS_helper::check_for_error(info);
+        GraphBLAS_helper::min_plus_mat_multiply(emit_probs_diag_mat, transposed_transitions,
+                                                emit_pr_x_trans_pr[i]);
 
         info = GrB_Matrix_clear(emit_probs_diag_mat);
         GraphBLAS_helper::check_for_error(info);

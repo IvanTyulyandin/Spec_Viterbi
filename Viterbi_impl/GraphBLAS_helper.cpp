@@ -29,6 +29,12 @@ void GraphBLAS_helper::check_for_error([[maybe_unused]] const GrB_Info& info,
 #endif
 }
 
+void GraphBLAS_helper::min_plus_mat_multiply(const GrB_Matrix lhs, const GrB_Matrix rhs,
+                                             GrB_Matrix res) {
+    auto info = GrB_mxm(res, GrB_NULL, GrB_NULL, GrB_MIN_PLUS_SEMIRING_FP32, lhs, rhs, GrB_NULL);
+    GraphBLAS_helper::check_for_error(info);
+}
+
 HMM::Prob_vec_t GraphBLAS_helper::GrB_Matrix_to_Prob_vec(GrB_Matrix mat) {
 #ifndef NDEBUG
     auto cols = GrB_Index();
