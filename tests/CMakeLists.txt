@@ -23,3 +23,9 @@ add_test(test_GraphBLAS_impl test_GraphBLAS_impl)
 add_executable(test_GraphBLAS_spec_impl test_GraphBLAS_spec_impl.cpp)
 target_link_libraries(test_GraphBLAS_spec_impl Spec_Viterbi)
 add_test(test_GraphBLAS_spec_impl test_GraphBLAS_spec_impl)
+
+# CUSP implementation tests
+
+add_executable(test_CUSP_impl test_CUSP_impl.cpp)
+target_link_libraries(test_CUSP_impl Spec_Viterbi)
+add_test(test_CUSP_impl test_CUSP_impl)

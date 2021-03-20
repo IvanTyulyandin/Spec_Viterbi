@@ -1,3 +1,4 @@
+#include "../Viterbi_impl/CUSP_impl.h"
 #include "../Viterbi_impl/GraphBLAS_helper.h"
 #include "../Viterbi_impl/GraphBLAS_impl.h"
 #include "../Viterbi_impl/data_reader.h"
@@ -21,15 +22,28 @@ void benchmark_Viterbi_impls_to_dat_file(const helper::Folder_path_t& chmm_folde
     GraphBLAS_helper::get_instance().launch_GraphBLAS();
 
     // Benchmarked implementations
-    const auto impls_to_bench = Vec_Viterbi_impls_t({std::make_shared<GraphBLAS_impl>()});
+    const auto impls_to_bench =
+        Vec_Viterbi_impls_t({std::make_shared<GraphBLAS_impl>(), std::make_shared<CUSP_impl>()});
 
     // Headers for .dat file
-    const auto headers = benchmark::helper::Headers_t({"States", "GraphBLAS"});
+    const auto headers = benchmark::helper::Headers_t({"States", "GraphBLAS", "CUSP"});
 
     auto bench = benchmark::helper::States_time_map();
 
     for (const auto& impl : impls_to_bench) {
+#ifndef NDEBUG
+        constexpr auto hmms_to_handle = 2;
+        auto hmms_processed = 0;
+#endif
         for (const auto& profile : fs::directory_iterator(chmm_folder)) {
+#ifndef NDEBUG
+            if (hmms_processed < hmms_to_handle) {
+                ++hmms_processed;
+                std::cout << "Benchmark debug info: hmms_processed is " << hmms_processed << '\n';
+            } else {
+                break;
+            }
+#endif
             const auto& path = profile.path();
             const auto& chmm_name = path.filename().string();
 
