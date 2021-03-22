@@ -31,21 +31,16 @@ void benchmark_Viterbi_impls_to_dat_file(const helper::Folder_path_t& chmm_folde
     auto bench = benchmark::helper::States_time_map();
 
     for (const auto& impl : impls_to_bench) {
-#ifndef NDEBUG
-        constexpr auto hmms_to_handle = 2;
-        auto hmms_processed = 0;
-#endif
         for (const auto& profile : fs::directory_iterator(chmm_folder)) {
-#ifndef NDEBUG
-            if (hmms_processed < hmms_to_handle) {
-                ++hmms_processed;
-                std::cout << "Benchmark debug info: hmms_processed is " << hmms_processed << '\n';
-            } else {
-                break;
-            }
-#endif
             const auto& path = profile.path();
             const auto& chmm_name = path.filename().string();
+
+#ifndef NDEBUG
+            if ((chmm_name != "100.chmm") && (chmm_name != "200.chmm")) {
+                std::cout << "Skip " << chmm_name << '\n';
+                continue;
+            }
+#endif
 
             if ((path.extension() == ".chmm") && (chmm_name != "test_chmm.chmm")) {
                 const auto hmm = read_HMM(path.string());

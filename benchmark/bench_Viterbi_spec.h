@@ -1,4 +1,4 @@
-#include "../Viterbi_impl/GraphBLAS_helper.h"
+#include "../Viterbi_impl/CUSP_spec_impl.h"
 #include "../Viterbi_impl/GraphBLAS_spec_impl.h"
 #include "../Viterbi_impl/data_reader.h"
 #include "benchmark_helper.h"
@@ -23,11 +23,13 @@ void benchmark_Viterbi_spec_impls_to_dat_file(const helper::Folder_path_t& chmm_
     // Benchmarked implementations
     const auto impls_to_bench = Vec_Viterbi_spec_impls_t(
         {std::make_shared<GraphBLAS_spec_impl>(1), std::make_shared<GraphBLAS_spec_impl>(2),
-         std::make_shared<GraphBLAS_spec_impl>(3)});
+         std::make_shared<GraphBLAS_spec_impl>(3), std::make_shared<CUSP_spec_impl>(1),
+         std::make_shared<CUSP_spec_impl>(2), std::make_shared<CUSP_spec_impl>(3)});
 
     // Headers for .dat file
     const auto headers = benchmark::helper::Headers_t(
-        {"States", "GraphBLAS_spec_1", "GraphBLAS_spec_2", "GraphBLAS_spec_3"});
+        {"States", "GraphBLAS_spec_1", "GraphBLAS_spec_2", "GraphBLAS_spec_3", "CUSP_spec_1",
+         "CUSP_spec_2", "CUSP_spec_3"});
 
     auto bench = benchmark::helper::States_time_map();
 
@@ -35,6 +37,13 @@ void benchmark_Viterbi_spec_impls_to_dat_file(const helper::Folder_path_t& chmm_
         for (const auto& profile : fs::directory_iterator(chmm_folder)) {
             const auto& path = profile.path();
             const auto& chmm_name = path.filename().string();
+
+#ifndef NDEBUG
+            if ((chmm_name != "100.chmm") && (chmm_name != "200.chmm")) {
+                std::cout << "Skip " << chmm_name << '\n';
+                continue;
+            }
+#endif
 
             if ((path.extension() == ".chmm") && (chmm_name != "test_chmm.chmm")) {
                 const auto hmm = read_HMM(path.string());
