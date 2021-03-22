@@ -15,7 +15,8 @@ set(LA_VITERBI_SRC
     GraphBLAS_spec_impl.h GraphBLAS_spec_impl.cpp
     # CUSP
     CUSP_helper.h CUSP_helper.cpp
-    CUSP_impl.h CUSP_impl.cpp)
+    CUSP_impl.h CUSP_impl.cpp
+    CUSP_spec_impl.h CUSP_spec_impl.cpp)
 add_library(Spec_Viterbi ${LA_VITERBI_SRC})
 
 # Required by GraphBLAS
