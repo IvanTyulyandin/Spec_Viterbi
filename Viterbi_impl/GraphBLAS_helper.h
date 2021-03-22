@@ -28,7 +28,7 @@ class GraphBLAS_helper {
 
     // Convert from GrB_Matrix to HMM::Prob_vec_t
     // mat expected to be a column
-    static HMM::Prob_vec_t GrB_Matrix_to_Prob_vec(GrB_Matrix mat);
+    static HMM::Mod_prob_vec_t GrB_Matrix_to_Prob_vec(GrB_Matrix mat);
 
     static GraphBLAS_helper& get_instance() {
         static GraphBLAS_helper instance;

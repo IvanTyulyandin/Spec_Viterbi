@@ -11,7 +11,7 @@ int main() {
 
     auto Viterbi_impl = CUSP_impl();
     auto res = Viterbi_impl.run_Viterbi(hmm, seq);
-    auto expected_res = HMM::Prob_vec_t{25.6574, 24.4874};
+    auto expected_res = HMM::Mod_prob_vec_t{25.6574, 24.4874};
 
     auto is_test_passed = true;
     for (size_t i = 0; i < expected_res.size(); ++i) {

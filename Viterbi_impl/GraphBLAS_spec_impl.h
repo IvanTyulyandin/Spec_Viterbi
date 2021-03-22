@@ -18,7 +18,7 @@ class GraphBLAS_spec_impl : public Viterbi_spec_impl {
 
     explicit GraphBLAS_spec_impl(size_t level) : precalc_obs_handlers(), level(level){};
 
-    [[nodiscard]] HMM::Prob_vec_t run_Viterbi_spec(const HMM::Emit_seq_t& seq) const override;
+    [[nodiscard]] HMM::Mod_prob_vec_t run_Viterbi_spec(const HMM::Emit_seq_t& seq) const override;
 
     size_t get_level() const { return level; }
 

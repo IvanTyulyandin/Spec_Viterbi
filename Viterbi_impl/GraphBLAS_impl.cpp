@@ -1,7 +1,7 @@
 #include "GraphBLAS_impl.h"
 #include "GraphBLAS_helper.h"
 
-HMM::Prob_vec_t GraphBLAS_impl::run_Viterbi(const HMM& hmm, const HMM::Emit_seq_t& seq) const {
+HMM::Mod_prob_vec_t GraphBLAS_impl::run_Viterbi(const HMM& hmm, const HMM::Emit_seq_t& seq) const {
     // Define GraphBLAS matrices
     auto result = GrB_Matrix();
 
@@ -21,7 +21,7 @@ HMM::Prob_vec_t GraphBLAS_impl::run_Viterbi(const HMM& hmm, const HMM::Emit_seq_
 
     // Emission probabilities matrices
     auto em_probs = std::vector<GrB_Matrix>(hmm.emit_num);
-    auto emit_data = HMM::Prob_vec_t(hmm.states_num);
+    auto emit_data = HMM::Mod_prob_vec_t(hmm.states_num);
 
     for (size_t i = 0; i < hmm.emit_num; ++i) {
         auto& m = em_probs[i];

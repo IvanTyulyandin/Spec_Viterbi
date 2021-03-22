@@ -6,9 +6,10 @@
 class HMM {
   public:
     using Probability_t = float;
+    using Mod_prob_t = float;
     using Index_t = size_t;
     using Emit_t = size_t;
-    using Prob_vec_t = std::vector<Probability_t>;
+    using Mod_prob_vec_t = std::vector<Mod_prob_t>;
     using Index_vec_t = std::vector<Index_t>;
     using Emit_seq_t = std::vector<Emit_t>;
     using Emit_seq_vec_t = std::vector<Emit_seq_t>;
@@ -29,18 +30,24 @@ class HMM {
     // encode states and emit symbols as numbers
     Index_vec_t trans_rows;
     Index_vec_t trans_cols;
-    Prob_vec_t trans_probs;
-    Prob_vec_t emissions;
+    Mod_prob_vec_t trans_probs;
+    Mod_prob_vec_t emissions;
     Index_t non_zero_start_probs;
-    Prob_vec_t start_probabilities;
+    Mod_prob_vec_t start_probabilities;
 
     // Functions to work with Probability_t
+    static constexpr auto zero_prob = std::numeric_limits<HMM::Probability_t>::infinity();
 
     static bool almost_equal(HMM::Probability_t x, HMM::Probability_t y) {
-        const auto is_both_inf = (std::numeric_limits<HMM::Probability_t>::infinity() == x) &&
-                                 (std::numeric_limits<HMM::Probability_t>::infinity() == y);
+        const auto is_both_inf = (zero_prob == x) && (zero_prob == y);
         return is_both_inf || std::fabs(x - y) <= 0.0001;
     }
 
-    static HMM::Probability_t to_neg_log(HMM::Probability_t x) { return -1 * std::log2(x); }
+    static HMM::Mod_prob_t to_modified_prob(HMM::Probability_t x) {
+        if (x != zero_prob) {
+            return -1 * std::log2(x);
+        } else {
+            return zero_prob;
+        }
+    }
 };

@@ -35,7 +35,7 @@ void GraphBLAS_helper::min_plus_mat_multiply(const GrB_Matrix lhs, const GrB_Mat
     GraphBLAS_helper::check_for_error(info);
 }
 
-HMM::Prob_vec_t GraphBLAS_helper::GrB_Matrix_to_Prob_vec(GrB_Matrix mat) {
+HMM::Mod_prob_vec_t GraphBLAS_helper::GrB_Matrix_to_Prob_vec(GrB_Matrix mat) {
 #ifndef NDEBUG
     auto cols = GrB_Index();
     auto deb_info = GrB_Matrix_ncols(&cols, mat);
@@ -50,7 +50,7 @@ HMM::Prob_vec_t GraphBLAS_helper::GrB_Matrix_to_Prob_vec(GrB_Matrix mat) {
     auto info = GrB_Matrix_nvals(&res_size, mat);
     check_for_error(info);
 
-    auto data = HMM::Prob_vec_t(res_size);
+    auto data = HMM::Mod_prob_vec_t(res_size);
     auto row_indices = HMM::Index_vec_t(res_size);
     auto col_indices = HMM::Index_vec_t(res_size);
 
@@ -58,7 +58,11 @@ HMM::Prob_vec_t GraphBLAS_helper::GrB_Matrix_to_Prob_vec(GrB_Matrix mat) {
                                          &res_size, mat);
     check_for_error(info);
 
-    auto res = HMM::Prob_vec_t(res_size);
+    auto nrows = GrB_Index();
+    info = GrB_Matrix_nrows(&nrows, mat);
+    check_for_error(info);
+
+    auto res = HMM::Mod_prob_vec_t(nrows, HMM::to_modified_prob(0));
     for (size_t i = 0; i < res_size; ++i) {
         res[row_indices[i]] = data[i];
     }

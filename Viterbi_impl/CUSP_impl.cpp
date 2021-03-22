@@ -5,7 +5,7 @@
 
 #include <cusp/print.h>
 
-HMM::Prob_vec_t CUSP_impl::run_Viterbi(const HMM& hmm, const HMM::Emit_seq_t& seq) const {
+HMM::Mod_prob_vec_t CUSP_impl::run_Viterbi(const HMM& hmm, const HMM::Emit_seq_t& seq) const {
     // Define column for start probabilities
     auto start_pr_host = CUSP_helper::Host_mat(hmm.states_num, 1, hmm.non_zero_start_probs);
     for (size_t i = 0, j = 0; i < hmm.start_probabilities.size(); ++i) {

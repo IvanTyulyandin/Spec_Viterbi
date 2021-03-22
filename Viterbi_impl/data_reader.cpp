@@ -23,12 +23,13 @@ HMM read_HMM(const std::string& HMM_file_name) {
 
     auto hmm = HMM{};
     auto prob_from_file = HMM::Probability_t(0);
+    auto mod_prob = HMM::Mod_prob_t(0);
 
     // Read number of states
     file >> hmm.states_num;
     // Init with transformed 0 probability
     hmm.start_probabilities =
-        HMM::Prob_vec_t(hmm.states_num, std::numeric_limits<HMM::Probability_t>::infinity());
+        HMM::Mod_prob_vec_t(hmm.states_num, std::numeric_limits<HMM::Probability_t>::infinity());
 
     // Read states with non zero probability to be start/
     auto state_ind = HMM::Index_t(0);
@@ -36,8 +37,8 @@ HMM read_HMM(const std::string& HMM_file_name) {
 
     for (size_t i = 0; i < hmm.non_zero_start_probs; ++i) {
         file >> state_ind >> prob_from_file;
-        prob_from_file = HMM::to_neg_log(prob_from_file);
-        hmm.start_probabilities[state_ind] = prob_from_file;
+        mod_prob = HMM::to_modified_prob(prob_from_file);
+        hmm.start_probabilities[state_ind] = mod_prob;
     }
 
     // Read info about emission symbols
@@ -46,8 +47,8 @@ HMM read_HMM(const std::string& HMM_file_name) {
 
     for (size_t i = 0; i < hmm.emit_num * hmm.states_num; ++i) {
         file >> prob_from_file;
-        prob_from_file = HMM::to_neg_log(prob_from_file);
-        hmm.emissions.push_back(prob_from_file);
+        mod_prob = HMM::to_modified_prob(prob_from_file);
+        hmm.emissions.push_back(mod_prob);
     }
 
     // Read graph edges info as triples:
@@ -62,10 +63,10 @@ HMM read_HMM(const std::string& HMM_file_name) {
     auto dst = size_t(0);
     for (size_t i = 0; i < hmm.trans_num; ++i) {
         file >> src >> dst >> prob_from_file;
-        prob_from_file = HMM::to_neg_log(prob_from_file);
+        mod_prob = HMM::to_modified_prob(prob_from_file);
         hmm.trans_rows.push_back(src);
         hmm.trans_cols.push_back(dst);
-        hmm.trans_probs.push_back(prob_from_file);
+        hmm.trans_probs.push_back(mod_prob);
     }
 
     file.close();

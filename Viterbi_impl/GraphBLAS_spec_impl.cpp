@@ -47,7 +47,7 @@ void GraphBLAS_spec_impl::spec_with(const HMM& hmm) {
     initializer(hmm, level);
 }
 
-HMM::Prob_vec_t GraphBLAS_spec_impl::run_Viterbi_spec(const HMM::Emit_seq_t& seq) const {
+HMM::Mod_prob_vec_t GraphBLAS_spec_impl::run_Viterbi_spec(const HMM::Emit_seq_t& seq) const {
     auto result = GrB_Matrix();
 
     // Start Viterbi algorithm for seq[0]
@@ -138,7 +138,7 @@ void GraphBLAS_spec_impl::initializer(const HMM& hmm, size_t level) {
         GraphBLAS_helper::check_for_error(info);
     }
 
-    auto emit_data = HMM::Prob_vec_t(states_num);
+    auto emit_data = HMM::Mod_prob_vec_t(states_num);
     auto emit_probs_diag_mat = GrB_Matrix();
     info = GrB_Matrix_new(&emit_probs_diag_mat, GrB_FP32, states_num, states_num);
     GraphBLAS_helper::check_for_error(info);

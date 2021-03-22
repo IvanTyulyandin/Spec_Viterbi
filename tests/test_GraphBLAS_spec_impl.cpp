@@ -19,7 +19,7 @@ int main() {
     auto res_lvl_2 = spec_lvl_2.run_Viterbi_spec(seq);
     auto res_lvl_3 = spec_lvl_3.run_Viterbi_spec(seq);
 
-    auto expected_res = HMM::Prob_vec_t{25.6574, 24.4874};
+    auto expected_res = HMM::Mod_prob_vec_t{25.6574, 24.4874};
 
     auto is_test_passed = true;
     for (size_t i = 0; i < expected_res.size(); ++i) {

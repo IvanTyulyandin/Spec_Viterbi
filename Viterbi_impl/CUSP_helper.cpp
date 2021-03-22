@@ -16,7 +16,7 @@ void min_plus_Dev_mat_multiply(const Dev_mat& lhs, const Dev_mat& rhs, Dev_mat& 
     cusp::multiply(lhs, rhs, res, init, plus, min);
 }
 
-HMM::Prob_vec_t Dev_mat_to_Prob_vec(const Dev_mat& mat) {
+HMM::Mod_prob_vec_t Dev_mat_to_Prob_vec(const Dev_mat& mat) {
 #ifndef NDEBUG
     for (auto c : mat.column_indices) {
         if (c != 0) {
@@ -24,7 +24,7 @@ HMM::Prob_vec_t Dev_mat_to_Prob_vec(const Dev_mat& mat) {
         }
     }
 #endif
-    auto res = HMM::Prob_vec_t(mat.num_rows, HMM::Probability_t());
+    auto res = HMM::Mod_prob_vec_t(mat.num_rows, HMM::to_modified_prob(0));
     for (size_t i = 0; i < mat.num_entries; ++i) {
         res[mat.row_indices[i]] = mat.values[i];
     }
