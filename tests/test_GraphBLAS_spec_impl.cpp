@@ -1,4 +1,3 @@
-#include "../Viterbi_impl/GraphBLAS_helper.h"
 #include "../Viterbi_impl/GraphBLAS_spec_impl.h"
 #include "../Viterbi_impl/data_reader.h"
 

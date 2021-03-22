@@ -2,7 +2,7 @@
 
 #include "HMM.h"
 
-using Obs_handler_t = std::unordered_map<std::vector<size_t>, GrB_Matrix, HMM::Emit_seq_hasher>;
+using Obs_handler_t = GraphBLAS_spec_impl::Obs_handler_t;
 
 namespace {
 
