@@ -11,4 +11,11 @@ class Viterbi_spec_impl {
     run_Viterbi_spec(const HMM::Emit_seq_t& seq) const = 0;
 
     virtual ~Viterbi_spec_impl() = default;
+
+    size_t get_level() const { return level; }
+
+  protected:
+    // "level" is a number of observation handlers to combine and precalculate
+    // checkout any of the specialized versions files, i.e. *_spec_impl.cpp, for more details
+    size_t level;
 };
