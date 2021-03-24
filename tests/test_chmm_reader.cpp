@@ -3,9 +3,10 @@
 int main() {
     auto hmm = read_HMM("../chmm_files/test_chmm.chmm");
     auto is_test_passed =
-        (hmm.states_num == 2 && hmm.non_zero_start_probs == 2 &&
+        (hmm.states_num == 3 && hmm.non_zero_start_probs == 2 &&
          HMM::almost_equal(hmm.start_probabilities[0], HMM::to_modified_prob(0.5)) &&
          HMM::almost_equal(hmm.start_probabilities[1], HMM::to_modified_prob(0.5)) &&
+         HMM::almost_equal(hmm.start_probabilities[2], HMM::to_modified_prob(0)) &&
          hmm.emit_num == 4 && HMM::almost_equal(hmm.emissions[0], HMM::to_modified_prob(0.2)) &&
          HMM::almost_equal(hmm.emissions[1], HMM::to_modified_prob(0.3)) &&
          HMM::almost_equal(hmm.emissions[2], HMM::to_modified_prob(0.3)) &&
@@ -13,7 +14,11 @@ int main() {
          HMM::almost_equal(hmm.emissions[4], HMM::to_modified_prob(0.3)) &&
          HMM::almost_equal(hmm.emissions[5], HMM::to_modified_prob(0.2)) &&
          HMM::almost_equal(hmm.emissions[6], HMM::to_modified_prob(0.2)) &&
-         HMM::almost_equal(hmm.emissions[7], HMM::to_modified_prob(0.3)) && hmm.trans_num == 4 &&
+         HMM::almost_equal(hmm.emissions[7], HMM::to_modified_prob(0.3)) &&
+         HMM::almost_equal(hmm.emissions[8], HMM::to_modified_prob(0.3)) &&
+         HMM::almost_equal(hmm.emissions[9], HMM::to_modified_prob(0.2)) &&
+         HMM::almost_equal(hmm.emissions[10], HMM::to_modified_prob(0.2)) &&
+         HMM::almost_equal(hmm.emissions[11], HMM::to_modified_prob(0.3)) && hmm.trans_num == 4 &&
          hmm.trans_rows == HMM::Index_vec_t{0, 0, 1, 1} &&
          hmm.trans_cols == HMM::Index_vec_t{0, 1, 0, 1} &&
          HMM::almost_equal(hmm.trans_probs[0], HMM::to_modified_prob(0.5)) &&
