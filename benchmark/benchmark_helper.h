@@ -34,16 +34,19 @@ template <typename T> void print_vector_to_file(std::ofstream& file, const std::
 }
 } // namespace
 
+Time_t get_func_run_time(const std::function<void(void)>& func) {
+    auto start_time = std::chrono::steady_clock::now();
+    func();
+    auto cur_time = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(cur_time - start_time);
+    return static_cast<Time_t>(duration.count());
+}
+
 Arr_run_times_t get_sorted_run_times(const std::function<void(void)>& func) {
     auto results = Arr_run_times_t();
 
     for (size_t i = 0; i < TIMES_TO_RUN; ++i) {
-        auto iteration_start_time = std::chrono::steady_clock::now();
-        func();
-        auto cur_time = std::chrono::steady_clock::now();
-        auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(cur_time - iteration_start_time);
-        results[i] = static_cast<Time_t>(duration.count());
+        results[i] = get_func_run_time(func);
     }
 
     std::sort(results.begin(), results.end());

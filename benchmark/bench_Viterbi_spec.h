@@ -21,15 +21,23 @@ void benchmark_Viterbi_spec_impls_to_dat_file(const helper::Folder_path_t& chmm_
     GraphBLAS_helper::get_instance().launch_GraphBLAS();
 
     // Benchmarked implementations
-    const auto impls_to_bench = Vec_Viterbi_spec_impls_t(
-        {std::make_shared<GraphBLAS_spec_impl>(1), std::make_shared<GraphBLAS_spec_impl>(2),
-         std::make_shared<GraphBLAS_spec_impl>(3), std::make_shared<CUSP_spec_impl>(1),
-         std::make_shared<CUSP_spec_impl>(2), std::make_shared<CUSP_spec_impl>(3)});
+    constexpr auto LEVELS = 3;
+    auto impls_to_bench = Vec_Viterbi_spec_impls_t();
 
     // Headers for .dat file
-    const auto headers = benchmark::helper::Headers_t(
-        {"States", "GraphBLAS_spec_1", "GraphBLAS_spec_2", "GraphBLAS_spec_3", "CUSP_spec_1",
-         "CUSP_spec_2", "CUSP_spec_3"});
+    auto headers = benchmark::helper::Headers_t({"States"});
+
+    for (size_t i = 1; i <= LEVELS; ++i) {
+        impls_to_bench.push_back(std::make_shared<GraphBLAS_spec_impl>(i));
+        headers.push_back("GraphBLAS_spec_" + std::to_string(i) + "_prep");
+        headers.push_back("GraphBLAS_spec_" + std::to_string(i));
+    }
+
+    for (size_t i = 1; i <= LEVELS; ++i) {
+        impls_to_bench.push_back(std::make_shared<CUSP_spec_impl>(i));
+        headers.push_back("CUSP_spec_" + std::to_string(i) + "_prep");
+        headers.push_back("CUSP_spec_" + std::to_string(i));
+    }
 
     auto bench = benchmark::helper::States_time_map();
 
@@ -47,8 +55,12 @@ void benchmark_Viterbi_spec_impls_to_dat_file(const helper::Folder_path_t& chmm_
 
             if ((path.extension() == ".chmm") && (chmm_name != "test_chmm.chmm")) {
                 const auto hmm = read_HMM(path.string());
-                impl->spec_with(hmm);
 
+                // Count time to perform specialization
+                auto spec_func = [&impl, &hmm = std::as_const(hmm)]() { impl->spec_with(hmm); };
+                bench[hmm.states_num].push_back(benchmark::helper::get_func_run_time(spec_func));
+
+                // Benchmark the impl run time
                 const auto func_to_bench = [&impl = std::as_const(impl),
                                             &ess_seq = std::as_const(ess_seq)]() {
                     for (const auto& ess : ess_seq) {
