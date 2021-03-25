@@ -24,7 +24,6 @@ class CUSP_spec_impl : public Viterbi_spec_impl {
     std::vector<CUSP_helper::Dev_mat> emit_pr_x_start_pr;
     std::vector<CUSP_helper::Dev_mat> emit_pr_x_trans_pr;
     Obs_handler_t precalc_obs_handlers;
-    HMM::Index_t states_num;
     size_t level;
 
     void initializer(const HMM& hmm, size_t level);

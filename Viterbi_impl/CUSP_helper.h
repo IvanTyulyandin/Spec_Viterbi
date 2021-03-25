@@ -18,4 +18,7 @@ HMM::Mod_prob_vec_t Dev_mat_to_Prob_vec(const Dev_mat& mat);
 
 bool is_not_zero_prob(HMM::Probability_t x);
 
+void init_matrices_from_HMM(const HMM& hmm, Dev_mat& start_pr_dev, Dev_mat& transp_tr_dev,
+                            std::vector<Dev_mat>& emit_mat_vec_dev);
+
 } // namespace CUSP_helper
