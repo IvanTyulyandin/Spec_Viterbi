@@ -50,4 +50,8 @@ class HMM {
             return zero_prob;
         }
     }
+
+    static bool is_not_zero_mod_prob(HMM::Mod_prob_t x) {
+        return !HMM::almost_equal(x, to_modified_prob(0));
+    }
 };

@@ -31,17 +31,12 @@ HMM::Mod_prob_vec_t Dev_mat_to_Prob_vec(const Dev_mat& mat) {
     return res;
 }
 
-bool is_not_zero_prob(HMM::Probability_t x) {
-    // Transformed zero probability is infinity, i.e. std::log2(0)
-    return !HMM::almost_equal(x, std::numeric_limits<HMM::Probability_t>::infinity());
-}
-
 void init_matrices_from_HMM(const HMM& hmm, Dev_mat& start_pr_dev, Dev_mat& transp_tr_dev,
                             std::vector<Dev_mat>& emit_mat_vec_dev) {
     // Define column for start probabilities
     auto start_pr_host = Host_mat(hmm.states_num, 1, hmm.non_zero_start_probs);
     for (size_t i = 0, j = 0; i < hmm.start_probabilities.size(); ++i) {
-        if (CUSP_helper::is_not_zero_prob(hmm.start_probabilities[i])) {
+        if (HMM::is_not_zero_mod_prob(hmm.start_probabilities[i])) {
             start_pr_host.row_indices[j] = i;
             start_pr_host.column_indices[j] = 0;
             start_pr_host.values[j] = hmm.start_probabilities[i];
