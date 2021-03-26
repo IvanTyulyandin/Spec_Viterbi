@@ -12,7 +12,7 @@ class Viterbi_spec_impl {
 
     virtual ~Viterbi_spec_impl() = default;
 
-    size_t get_level() const { return level; }
+    [[nodiscard]] size_t get_level() const { return level; }
 
   protected:
     // "level" is a number of observation handlers to combine and precalculate
