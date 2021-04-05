@@ -41,14 +41,17 @@ HMM read_HMM(const std::string& HMM_file_name) {
         hmm.start_probabilities[state_ind] = mod_prob;
     }
 
-    // Read info about emission symbols
+    // Read info about emission symbols and store them as
+    // vector: [emission][probabilities to occur in states]
     file >> hmm.emit_num;
-    hmm.emissions.reserve(hmm.emit_num * hmm.states_num);
+    hmm.emissions = std::vector(hmm.emit_num, HMM::Mod_prob_vec_t(hmm.states_num, HMM::zero_prob));
 
-    for (size_t i = 0; i < hmm.emit_num * hmm.states_num; ++i) {
-        file >> prob_from_file;
-        mod_prob = HMM::to_modified_prob(prob_from_file);
-        hmm.emissions.push_back(mod_prob);
+    for (size_t i = 0; i < hmm.states_num; ++i) {
+        for (size_t j = 0; j < hmm.emit_num; ++j) {
+            file >> prob_from_file;
+            mod_prob = HMM::to_modified_prob(prob_from_file);
+            hmm.emissions[j][i] = mod_prob;
+        }
     }
 
     // Read graph edges info as triples:

@@ -138,22 +138,15 @@ void GraphBLAS_spec_impl::initializer(const HMM& hmm, size_t level) {
         GraphBLAS_helper::check_for_error(info);
     }
 
-    auto emit_data = HMM::Mod_prob_vec_t(states_num);
     auto emit_probs_diag_mat = GrB_Matrix();
     info = GrB_Matrix_new(&emit_probs_diag_mat, GrB_FP32, states_num, states_num);
     GraphBLAS_helper::check_for_error(info);
 
     for (size_t i = 0; i < hmm.emit_num; ++i) {
 
-        auto offset = i;
-        for (size_t j = 0; j < states_num; ++j) {
-            emit_data[j] = hmm.emissions[offset];
-            offset += hmm.emit_num;
-        }
-
         info = GrB_Matrix_build_FP32(emit_probs_diag_mat, from_0_to_n_ind.data(),
-                                     from_0_to_n_ind.data(), emit_data.data(), hmm.states_num,
-                                     GrB_FIRST_FP32);
+                                     from_0_to_n_ind.data(), hmm.emissions[i].data(),
+                                     hmm.states_num, GrB_FIRST_FP32);
         GraphBLAS_helper::check_for_error(info);
 
         GraphBLAS_helper::min_plus_mat_multiply(emit_probs_diag_mat, start_probs,

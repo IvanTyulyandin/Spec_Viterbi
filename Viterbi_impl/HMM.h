@@ -31,7 +31,7 @@ class HMM {
     Index_vec_t trans_rows;
     Index_vec_t trans_cols;
     Mod_prob_vec_t trans_probs;
-    Mod_prob_vec_t emissions;
+    std::vector<Mod_prob_vec_t> emissions;
     Index_t non_zero_start_probs;
     Mod_prob_vec_t start_probabilities;
 

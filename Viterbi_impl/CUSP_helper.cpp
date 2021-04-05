@@ -60,12 +60,10 @@ void init_matrices_from_HMM(const HMM& hmm, Dev_mat& start_pr_dev, Dev_mat& tran
         auto& m = emit_mat_vec_host[i];
         // May have some zeroes instead of non zeroes
         m = CUSP_helper::Host_mat(hmm.states_num, hmm.states_num, hmm.states_num);
-        auto offset = i;
         for (size_t j = 0; j < hmm.states_num; ++j) {
             m.row_indices[j] = j;
             m.column_indices[j] = j;
-            m.values[j] = hmm.emissions[offset];
-            offset += hmm.emit_num;
+            m.values[j] = hmm.emissions[i][j];
         }
         m.sort_by_row_and_column();
     }
