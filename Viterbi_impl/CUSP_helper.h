@@ -9,8 +9,8 @@
 
 namespace CUSP_helper {
 
-using Host_mat = cusp::coo_matrix<size_t, HMM::Probability_t, cusp::host_memory>;
-using Dev_mat = cusp::coo_matrix<size_t, HMM::Probability_t, cusp::device_memory>;
+using Host_mat = cusp::coo_matrix<size_t, HMM::Mod_prob_t, cusp::host_memory>;
+using Dev_mat = cusp::coo_matrix<size_t, HMM::Mod_prob_t, cusp::device_memory>;
 
 void min_plus_Dev_mat_multiply(const Dev_mat& lhs, const Dev_mat& rhs, Dev_mat& res);
 

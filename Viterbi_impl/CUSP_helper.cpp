@@ -6,12 +6,10 @@
 
 namespace CUSP_helper {
 
-constexpr auto inf = std::numeric_limits<HMM::Probability_t>::infinity();
-
 void min_plus_Dev_mat_multiply(const Dev_mat& lhs, const Dev_mat& rhs, Dev_mat& res) {
-    const auto init = cusp::constant_functor<HMM::Probability_t>(inf);
-    const auto min = thrust::minimum<HMM::Probability_t>();
-    const auto plus = thrust::plus<HMM::Probability_t>();
+    const auto init = cusp::constant_functor<HMM::Mod_prob_t>(HMM::zero_prob);
+    const auto min = thrust::minimum<HMM::Mod_prob_t>();
+    const auto plus = thrust::plus<HMM::Mod_prob_t>();
 
     cusp::multiply(lhs, rhs, res, init, plus, min);
 }

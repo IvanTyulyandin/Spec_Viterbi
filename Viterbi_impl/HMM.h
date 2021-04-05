@@ -35,10 +35,10 @@ class HMM {
     Index_t non_zero_start_probs;
     Mod_prob_vec_t start_probabilities;
 
-    // Functions to work with Probability_t
-    static constexpr auto zero_prob = std::numeric_limits<HMM::Probability_t>::infinity();
+    // Functions to work with Mod_prob_t
+    static constexpr auto zero_prob = std::numeric_limits<HMM::Mod_prob_t>::infinity();
 
-    static bool almost_equal(HMM::Probability_t x, HMM::Probability_t y) {
+    static bool almost_equal(HMM::Mod_prob_t x, HMM::Mod_prob_t y) {
         const auto is_both_inf = (zero_prob == x) && (zero_prob == y);
         return is_both_inf || std::fabs(x - y) <= 0.0001;
     }
