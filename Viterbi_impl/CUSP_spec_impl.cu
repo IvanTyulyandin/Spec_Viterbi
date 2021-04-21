@@ -10,13 +10,13 @@ void add_level(Obs_handler_t& prev, const std::vector<CUSP_helper::Dev_mat>& upd
                HMM::Index_t emit_num) {
     auto res = Obs_handler_t(prev.size() * emit_num);
 
-    for (const auto& [k, v] : prev) {
+    for (const auto& kv : prev) {
         for (size_t i = 0; i < emit_num; ++i) {
-            auto new_key = HMM::Emit_seq_t(k);
+            auto new_key = HMM::Emit_seq_t(kv.first);
             new_key.push_back(i);
 
             auto handler = CUSP_helper::Dev_mat();
-            CUSP_helper::min_plus_Dev_mat_multiply(updater[i], v, handler);
+            CUSP_helper::min_plus_Dev_mat_multiply(updater[i], kv.second, handler);
 
             res.insert({std::move(new_key), handler});
         }

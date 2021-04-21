@@ -1,9 +1,5 @@
-// Select device backend
-// THRUST_DEVICE_SYSTEM_XXX
-// where XXX can be CUDA, OMP, TBB and CPP
-#define THRUST_DEVICE_SYSTEM THRUST_DEVICE_SYSTEM_OMP
-
-#include <cusp/coo_matrix.h>
+#include "CUSP_compiler_fence.h"
+#include "cusp/coo_matrix.h"
 
 #include "HMM.h"
 

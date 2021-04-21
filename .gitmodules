@@ -1,0 +1,3 @@
+[submodule "thirdparty/cusplibrary"]
+	path = Viterbi_impl/thirdparty/cusplibrary
+	url = https://github.com/IvanTyulyandin/cusplibrary.git

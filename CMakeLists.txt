@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 project(Spec_Viterbi)
 
 set(CMAKE_CXX_STANDARD 20)
-add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wno-unused-function -Wno-unused-variable)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror")
+
 
 # Build main part as Spec_Viterbi library
 add_subdirectory(Viterbi_impl)
