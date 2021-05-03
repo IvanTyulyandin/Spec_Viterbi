@@ -28,7 +28,7 @@ void add_level(Obs_handler_t& prev, const std::vector<CUSP_helper::Dev_mat>& upd
 } // namespace
 
 CUSP_spec_impl::CUSP_spec_impl(const HMM& hmm, size_t level)
-    : precalc_obs_handlers(), level(level) {
+    : Viterbi_spec_impl(level), precalc_obs_handlers() {
     initializer(hmm, level);
 }
 

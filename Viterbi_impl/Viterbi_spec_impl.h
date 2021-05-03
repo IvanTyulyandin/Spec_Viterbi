@@ -5,6 +5,9 @@
 // Viterbi specialized algorithm implementation class
 class Viterbi_spec_impl {
   public:
+    Viterbi_spec_impl() = default;
+    explicit Viterbi_spec_impl(size_t level) : level(level){};
+
     virtual void spec_with(const HMM& hmm) = 0;
 
     [[nodiscard]] virtual HMM::Mod_prob_vec_t

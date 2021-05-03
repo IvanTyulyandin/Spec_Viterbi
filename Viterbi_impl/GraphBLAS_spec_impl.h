@@ -11,7 +11,7 @@ class GraphBLAS_spec_impl : public Viterbi_spec_impl {
 
     explicit GraphBLAS_spec_impl(const HMM& hmm, size_t level);
 
-    explicit GraphBLAS_spec_impl(size_t level) : precalc_obs_handlers(), level(level){};
+    explicit GraphBLAS_spec_impl(size_t level) : Viterbi_spec_impl(level), precalc_obs_handlers(){};
 
     [[nodiscard]] HMM::Mod_prob_vec_t run_Viterbi_spec(const HMM::Emit_seq_t& seq) const override;
 
@@ -24,7 +24,6 @@ class GraphBLAS_spec_impl : public Viterbi_spec_impl {
     std::vector<GrB_Matrix> emit_pr_x_trans_pr;
     Obs_handler_t precalc_obs_handlers;
     HMM::Index_t states_num;
-    size_t level;
 
     void initializer(const HMM& hmm, size_t level);
     void deleter();
