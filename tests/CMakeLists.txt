@@ -33,3 +33,9 @@ add_test(test_CUSP_impl test_CUSP_impl)
 add_executable(test_CUSP_spec_impl test_CUSP_spec_impl.cpp test_helper.h)
 target_link_libraries(test_CUSP_spec_impl Spec_Viterbi)
 add_test(test_CUSP_spec_impl test_CUSP_spec_impl)
+
+# Semantic equvivalence test
+
+add_executable(test_semantic_equality test_semantic_equality.cpp test_helper.h)
+target_link_libraries(test_semantic_equality Spec_Viterbi stdc++fs)
+add_test(test_semantic_equality test_semantic_equality)

@@ -18,7 +18,15 @@ bool compare_two_answers(const HMM::Mod_prob_vec_t& lhs, const HMM::Mod_prob_vec
     auto are_equal = true;
     for (size_t i = 0; i < lhs.size(); ++i) {
         are_equal &= HMM::almost_equal(lhs[i], rhs[i]);
+        if (!are_equal) {
+            // std::cerr << lhs[i] << ' ' << rhs[i] << '\n';
+            return false;
+        }
     }
+    // Uncomment if wish to print results
+    // for (size_t i = 0; i < lhs.size(); ++i) {
+    //     std::cout << lhs[i] << ' ' << rhs[i] << '\n';
+    // }
     are_equal &= (lhs.size() == rhs.size());
 
     return are_equal;

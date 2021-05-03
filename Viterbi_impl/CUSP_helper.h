@@ -1,3 +1,5 @@
+#pragma once
+
 #include "CUSP_compiler_fence.h"
 #include "cusp/coo_matrix.h"
 

@@ -1,9 +1,6 @@
 #include "CUSP_impl.h"
 
-// Should be first header to define device
 #include "CUSP_helper.h"
-
-#include <cusp/print.h>
 
 HMM::Mod_prob_vec_t CUSP_impl::run_Viterbi(const HMM& hmm, const HMM::Emit_seq_t& seq) const {
 
