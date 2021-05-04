@@ -30,7 +30,8 @@ void benchmark_Viterbi_impls_to_dat_file(const helper::Folder_path_t& chmm_folde
 
     auto bench = benchmark::helper::States_time_map();
 
-    for (const auto& impl : impls_to_bench) {
+    for (size_t i = 0; i < impls_to_bench.size(); ++i) {
+        std::cout << '\n' << headers[i + 1] << " is running!\n";
         for (const auto& profile : fs::directory_iterator(chmm_folder)) {
             const auto& path = profile.path();
             const auto& chmm_name = path.filename().string();
@@ -44,7 +45,7 @@ void benchmark_Viterbi_impls_to_dat_file(const helper::Folder_path_t& chmm_folde
 
             if ((path.extension() == ".chmm") && (chmm_name != "test_chmm.chmm")) {
                 const auto hmm = read_HMM(path.string());
-
+                auto impl = impls_to_bench[i];
                 const auto func_to_bench = [&impl = std::as_const(impl), &hmm = std::as_const(hmm),
                                             &ess_seq = std::as_const(ess_seq)]() {
                     for (const auto& ess : ess_seq) {
@@ -55,6 +56,7 @@ void benchmark_Viterbi_impls_to_dat_file(const helper::Folder_path_t& chmm_folde
 
                 auto res_run_times = benchmark::helper::get_sorted_run_times(func_to_bench);
                 bench[hmm.states_num].push_back(benchmark::helper::get_median(res_run_times));
+                std::cout << chmm_name << " was benchmarked!\n";
             }
         }
     }
