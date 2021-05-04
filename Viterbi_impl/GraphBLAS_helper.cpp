@@ -17,7 +17,8 @@ GraphBLAS_helper::~GraphBLAS_helper() {
     check_for_error(info);
 }
 
-void GraphBLAS_helper::check_for_error(const GrB_Info& info, std::experimental::source_location s) {
+void GraphBLAS_helper::check_for_error([[maybe_unused]] const GrB_Info& info,
+                                       [[maybe_unused]] std::experimental::source_location s) {
 #ifndef NDEBUG
     // info is code of an error, checkout SuiteSparse:GraphBLAS User Guide, section about GrB_Info
     if (!(info == GrB_Info::GrB_SUCCESS || info == GrB_Info::GrB_NO_VALUE)) {

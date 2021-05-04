@@ -22,7 +22,7 @@ target_link_libraries(Viterbi_GraphBLAS Viterbi_helper OpenMP::OpenMP_CXX graphb
 
 
 # CUSP version
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -DNDEBUG -O3 -use_fast_math -Xcompiler=-Ofast,-march=native,-DNDEBUG")
+set(CMAKE_CUDA_FLAGS_RELEASE "--optimize 3 --generate-line-info -DNDEBUG")
 
 add_library(cusp INTERFACE)
 target_include_directories(cusp INTERFACE ${CMAKE_CURRENT_LIST_DIR}/thirdparty/cusplibrary)

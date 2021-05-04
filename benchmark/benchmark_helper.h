@@ -11,7 +11,7 @@ namespace benchmark {
 
 namespace helper {
 
-constexpr size_t TIMES_TO_RUN = 2;
+constexpr size_t TIMES_TO_RUN = 10;
 
 using Time_t = size_t;
 using Arr_run_times_t = std::array<Time_t, TIMES_TO_RUN>;
