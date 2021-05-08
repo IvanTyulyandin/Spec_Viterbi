@@ -74,7 +74,8 @@ void benchmark_Viterbi_spec_impls_to_dat_file(const helper::Folder_path_t& chmm_
 
                 auto res_run_times = benchmark::helper::get_sorted_run_times(func_to_bench);
                 bench[hmm.states_num].push_back(benchmark::helper::get_median(res_run_times));
-                std::cout << chmm_name << " was benchmarked!\n";
+                std::cout << chmm_name << " was benchmarked! " << bench[hmm.states_num].back()
+                          << "\n";
             }
         }
     }
