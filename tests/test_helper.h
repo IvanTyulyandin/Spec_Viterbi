@@ -14,9 +14,12 @@ const auto chmm_postfix = std::string("_test_chmm.chmm");
 const auto test_ess_path = std::string("../ess_files/test_sequences/");
 const auto ess_postfix = std::string("_test_seq.ess");
 
-const auto expected_results =
-    std::vector({HMM::Mod_prob_vec_t{25.6574, 24.4874, HMM::to_modified_prob(0)}});
-
+const auto expected_results = std::vector(
+    {HMM::Mod_prob_vec_t{25.6574, 24.4874, HMM::to_modified_prob(0)},
+     HMM::Mod_prob_vec_t{HMM::to_modified_prob(0.04608), HMM::to_modified_prob(0.10752)},
+     HMM::Mod_prob_vec_t{HMM::to_modified_prob(0.00882), HMM::to_modified_prob(0.02646)},
+     HMM::Mod_prob_vec_t{HMM::to_modified_prob(0), HMM::to_modified_prob(0.00000282),
+                         HMM::to_modified_prob(0.0000181), HMM::to_modified_prob(0.00000605)}});
 constexpr auto LEVELS_TO_TEST = 7;
 
 bool compare_two_answers(const HMM::Mod_prob_vec_t& lhs, const HMM::Mod_prob_vec_t& rhs) {
@@ -29,6 +32,7 @@ bool compare_two_answers(const HMM::Mod_prob_vec_t& lhs, const HMM::Mod_prob_vec
         }
     }
     // Uncomment if wish to print results
+    // std::cout << "------\n";
     // for (size_t i = 0; i < lhs.size(); ++i) {
     //     std::cout << lhs[i] << ' ' << rhs[i] << '\n';
     // }
