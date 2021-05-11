@@ -1,7 +1,7 @@
 #include "../Viterbi_impl/data_reader.h"
 
 int main() {
-    auto hmm = read_HMM("../chmm_files/test_chmm.chmm");
+    auto hmm = read_HMM("../chmm_files/test_chmms/0_test_chmm.chmm");
     auto is_test_passed =
         (hmm.states_num == 3 && hmm.non_zero_start_probs == 2 &&
          HMM::almost_equal(hmm.start_probabilities[0], HMM::to_modified_prob(0.5)) &&

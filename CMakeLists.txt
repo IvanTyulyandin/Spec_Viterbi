@@ -19,8 +19,8 @@ enable_testing()
 add_subdirectory(tests)
 
 # Copy dataset to a build folder
-file(GLOB CHMM_DATA ${CMAKE_CURRENT_SOURCE_DIR}/chmm_files/*.chmm)
+file(GLOB CHMM_DATA ${CMAKE_CURRENT_SOURCE_DIR}/chmm_files/*)
 file(COPY ${CHMM_DATA} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/chmm_files/)
 
-file(GLOB ESS_DATA ${CMAKE_CURRENT_SOURCE_DIR}/ess_files/*.ess)
+file(GLOB ESS_DATA ${CMAKE_CURRENT_SOURCE_DIR}/ess_files/*)
 file(COPY ${ESS_DATA} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/ess_files/)

@@ -8,9 +8,14 @@
 
 namespace test_helper {
 
-const auto hmm = read_HMM("../chmm_files/test_chmm.chmm");
-const auto seq = read_emit_seq("../ess_files/test_seq.ess")[0];
-const auto expected_res = HMM::Mod_prob_vec_t{25.6574, 24.4874, HMM::to_modified_prob(0)};
+const auto test_chmms_path = std::string("../chmm_files/test_chmms/");
+const auto chmm_postfix = std::string("_test_chmm.chmm");
+
+const auto test_ess_path = std::string("../ess_files/test_sequences/");
+const auto ess_postfix = std::string("_test_seq.ess");
+
+const auto expected_results =
+    std::vector({HMM::Mod_prob_vec_t{25.6574, 24.4874, HMM::to_modified_prob(0)}});
 
 constexpr auto LEVELS_TO_TEST = 7;
 
@@ -33,14 +38,34 @@ bool compare_two_answers(const HMM::Mod_prob_vec_t& lhs, const HMM::Mod_prob_vec
 }
 
 bool test_impl(const Viterbi_impl& impl) {
-    auto res = impl.run_Viterbi(hmm, seq);
-    return compare_two_answers(res, expected_res);
+    auto is_passed = true;
+    for (size_t i = 0; i < expected_results.size(); ++i) {
+        auto chmm = read_HMM(test_chmms_path + std::to_string(i) + chmm_postfix);
+        auto seq = read_emit_seq(test_ess_path + std::to_string(i) + ess_postfix)[0];
+        auto res = impl.run_Viterbi(chmm, seq);
+        is_passed &= compare_two_answers(res, expected_results[i]);
+        if (!is_passed) {
+            std::cerr << "test_impl fail " << i << '\n';
+            return false;
+        }
+    }
+    return is_passed;
 }
 
 bool test_spec_impl(Viterbi_spec_impl& impl) {
-    impl.spec_with(hmm);
-    auto res = impl.run_Viterbi_spec(seq);
-    return compare_two_answers(res, expected_res);
+    auto is_passed = true;
+    for (size_t i = 0; i < expected_results.size(); ++i) {
+        auto chmm = read_HMM(test_chmms_path + std::to_string(i) + chmm_postfix);
+        auto seq = read_emit_seq(test_ess_path + std::to_string(i) + ess_postfix)[0];
+        impl.spec_with(chmm);
+        auto res = impl.run_Viterbi_spec(seq);
+        is_passed &= compare_two_answers(res, expected_results[i]);
+        if (!is_passed) {
+            std::cerr << "test_spec_impl fail " << i << '\n';
+            return false;
+        }
+    }
+    return is_passed;
 }
 
 } // namespace test_helper
