@@ -48,14 +48,12 @@ class HMM {
     }
 
     static HMM::Mod_prob_t to_modified_prob(HMM::Probability_t x) {
-        if (x != zero_prob) {
+        if (x > 0.0) {
             return -1 * std::log2(x);
         } else {
             return zero_prob;
         }
     }
 
-    static bool is_not_zero_mod_prob(HMM::Mod_prob_t x) {
-        return !HMM::almost_equal(x, to_modified_prob(0));
-    }
+    static bool is_not_zero_mod_prob(HMM::Mod_prob_t x) { return !HMM::almost_equal(x, zero_prob); }
 };
