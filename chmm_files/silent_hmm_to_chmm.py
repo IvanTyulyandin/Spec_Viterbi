@@ -133,11 +133,11 @@ for hmm_file in sys.argv[1:]:
                     ' ' + to_fixed(match_transitions[i]) + '\n')
 
         for i in range(model_length):
-            # From N to M_i
-            f.write('0 ' + str(i + 1) + ' ' + to_fixed(tr_N_Mk) + '\n')
+            # From M_i to N
+            f.write(str(i + 1) + ' 0 ' + to_fixed(tr_Mk_N) + '\n')
             # From M_i to C
             f.write(str(i + 1) + ' ' + str(model_length + 1) +
-                    ' ' + to_fixed(tr_Mk_N) + '\n')
+                    ' ' + to_fixed(tr_Mk_C) + '\n')
 
         # Transition for C
         f.write(str(model_length + 1) + ' ' +
