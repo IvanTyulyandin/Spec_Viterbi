@@ -21,7 +21,7 @@ void benchmark_Viterbi_spec_impls_to_dat_file(const helper::Folder_path_t& chmm_
     GraphBLAS_helper::get_instance().launch_GraphBLAS();
 
     // Benchmarked implementations
-    constexpr auto LEVELS = 3;
+    constexpr auto LEVELS = 2;
     auto impls_to_bench = Vec_Viterbi_spec_impls_t();
 
     // Headers for .dat file
@@ -33,7 +33,7 @@ void benchmark_Viterbi_spec_impls_to_dat_file(const helper::Folder_path_t& chmm_
         headers.push_back("GraphBLAS_spec_" + std::to_string(i));
     }
 
-    for (size_t i = 1; i <= LEVELS; ++i) {
+    for (size_t i = 1; i <= LEVELS - 1; ++i) {
         impls_to_bench.push_back(std::make_shared<CUSP_spec_impl>(i));
         headers.push_back("CUSP_spec_" + std::to_string(i) + "_prep");
         headers.push_back("CUSP_spec_" + std::to_string(i));
