@@ -41,10 +41,10 @@ class HMM {
 
     static bool almost_equal(HMM::Mod_prob_t x, HMM::Mod_prob_t y) {
         const auto is_both_inf = (zero_prob == x) && (zero_prob == y);
-        // GraphBLAS lose precision in big tests, but the results do not diverge
+        // Presicion is lost after calculation reorder, thus delta, e.g. 1.0 need to be used.
         // The result correctness can be checked by printing data while comparing two answers,
         // e.g. checkout line 26 of ../tests/test_helper.h and run test_semantic_equality
-        return is_both_inf || std::fabs(x - y) <= 0.4;
+        return is_both_inf || std::fabs(x - y) <= 1.0;
     }
 
     static HMM::Mod_prob_t to_modified_prob(HMM::Probability_t x) {

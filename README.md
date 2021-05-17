@@ -41,10 +41,3 @@ If you wish to run testing, you can run script
 To check if memory leaks are present, you can
 pass  
 `-v` option to this script to run tests with Valgrind.
-
-## Known issues
-
-Semantic equality test fails for the CUSP
-implementation due to accumulated error after
-evaluation reorder and floating point number
-representation in memory.

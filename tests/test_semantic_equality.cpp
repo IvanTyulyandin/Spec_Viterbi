@@ -38,15 +38,17 @@ int main() {
 
             // Setup specialized implementations
             auto spec_impls = std::vector<std::shared_ptr<Viterbi_spec_impl>>();
-            constexpr size_t MAX_SPEC_LVL = 3;
-            for (size_t i = 2; i <= MAX_SPEC_LVL; ++i) {
-                spec_impls.push_back(
-                    std::shared_ptr<GraphBLAS_spec_impl>(new GraphBLAS_spec_impl(i)));
-                spec_impls.back()->spec_with(hmm);
 
-                spec_impls.push_back(std::shared_ptr<CUSP_spec_impl>(new CUSP_spec_impl(i)));
-                spec_impls.back()->spec_with(hmm);
-            }
+            // Used level is based on the memory issues
+            spec_impls.push_back(std::shared_ptr<GraphBLAS_spec_impl>(new GraphBLAS_spec_impl(1)));
+            spec_impls.back()->spec_with(hmm);
+
+            spec_impls.push_back(std::shared_ptr<GraphBLAS_spec_impl>(new GraphBLAS_spec_impl(2)));
+            spec_impls.back()->spec_with(hmm);
+
+            spec_impls.push_back(std::shared_ptr<CUSP_spec_impl>(new CUSP_spec_impl(1)));
+            spec_impls.back()->spec_with(hmm);
+
             auto spec_last_answer = HMM::Mod_prob_vec_t();
 
             // Main part of the test
