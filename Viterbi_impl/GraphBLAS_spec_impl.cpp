@@ -116,7 +116,7 @@ void GraphBLAS_spec_impl::initializer(const HMM& hmm, size_t level) {
     // Read info about states with
     // non zero probabilities to be start
 
-    auto n_zeroes_ind = std::vector<GrB_Index>(states_num, 0);
+    auto n_zeroes_ind = std::vector<GrB_Index>(hmm.non_zero_start_probs, 0);
     auto from_0_to_n_ind = std::vector<GrB_Index>(states_num);
     for (size_t i = 0; i < states_num; ++i) {
         from_0_to_n_ind[i] = i;
@@ -125,8 +125,9 @@ void GraphBLAS_spec_impl::initializer(const HMM& hmm, size_t level) {
     auto start_probs = GrB_Matrix();
     info = GrB_Matrix_new(&start_probs, GrB_FP32, states_num, 1);
     GraphBLAS_helper::check_for_error(info);
-    info = GrB_Matrix_build_FP32(start_probs, from_0_to_n_ind.data(), n_zeroes_ind.data(),
-                                 hmm.start_probabilities.data(), hmm.states_num, GrB_FIRST_FP32);
+    info = GrB_Matrix_build_FP32(start_probs, hmm.start_probabilities_cols.data(),
+                                 n_zeroes_ind.data(), hmm.start_probabilities.data(),
+                                 hmm.non_zero_start_probs, GrB_FIRST_FP32);
     GraphBLAS_helper::check_for_error(info);
 
     emit_pr_x_start_pr = std::vector<GrB_Matrix>(hmm.emit_num);

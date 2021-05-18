@@ -33,13 +33,10 @@ void init_matrices_from_HMM(const HMM& hmm, Dev_mat& start_pr_dev, Dev_mat& tran
                             std::vector<Dev_mat>& emit_mat_vec_dev) {
     // Define column for start probabilities
     auto start_pr_host = Host_mat(hmm.states_num, 1, hmm.non_zero_start_probs);
-    for (size_t i = 0, j = 0; i < hmm.start_probabilities.size(); ++i) {
-        if (HMM::is_not_zero_mod_prob(hmm.start_probabilities[i])) {
-            start_pr_host.row_indices[j] = i;
-            start_pr_host.column_indices[j] = 0;
-            start_pr_host.values[j] = hmm.start_probabilities[i];
-            ++j;
-        }
+    for (size_t i = 0; i < hmm.non_zero_start_probs; ++i) {
+        start_pr_host.row_indices[i] = hmm.start_probabilities_cols[i];
+        start_pr_host.column_indices[i] = 0;
+        start_pr_host.values[i] = hmm.start_probabilities[i];
     }
     start_pr_host.sort_by_row_and_column();
 

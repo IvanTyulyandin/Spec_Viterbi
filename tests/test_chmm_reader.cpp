@@ -6,8 +6,8 @@ int main() {
         (hmm.states_num == 3 && hmm.non_zero_start_probs == 2 &&
          HMM::almost_equal(hmm.start_probabilities[0], HMM::to_modified_prob(0.5)) &&
          HMM::almost_equal(hmm.start_probabilities[1], HMM::to_modified_prob(0.5)) &&
-         HMM::almost_equal(hmm.start_probabilities[2], HMM::to_modified_prob(0)) &&
-         hmm.emit_num == 4 && hmm.emissions.size() == 4 &&
+         hmm.start_probabilities_cols == HMM::Index_vec_t{{0, 1}} && hmm.emit_num == 4 &&
+         hmm.emissions.size() == 4 &&
          HMM::almost_equal(hmm.emissions[0][0], HMM::to_modified_prob(0.2)) &&
          HMM::almost_equal(hmm.emissions[1][0], HMM::to_modified_prob(0.3)) &&
          HMM::almost_equal(hmm.emissions[2][0], HMM::to_modified_prob(0.3)) &&

@@ -27,17 +27,20 @@ HMM read_HMM(const std::string& HMM_file_name) {
 
     // Read number of states
     file >> hmm.states_num;
-    // Init with modified 0 probability
-    hmm.start_probabilities = HMM::Mod_prob_vec_t(hmm.states_num, HMM::zero_prob);
 
     // Read states with non zero probability to be start/
     auto state_ind = HMM::Index_t(0);
     file >> hmm.non_zero_start_probs;
+    hmm.start_probabilities_cols = HMM::Index_vec_t();
+    hmm.start_probabilities = HMM::Mod_prob_vec_t();
+    hmm.start_probabilities_cols.reserve(hmm.non_zero_start_probs);
+    hmm.start_probabilities.reserve(hmm.non_zero_start_probs);
 
     for (size_t i = 0; i < hmm.non_zero_start_probs; ++i) {
         file >> state_ind >> prob_from_file;
         mod_prob = HMM::to_modified_prob(prob_from_file);
-        hmm.start_probabilities[state_ind] = mod_prob;
+        hmm.start_probabilities_cols.push_back(state_ind);
+        hmm.start_probabilities.push_back(mod_prob);
     }
 
     // Read info about emission symbols and store them as

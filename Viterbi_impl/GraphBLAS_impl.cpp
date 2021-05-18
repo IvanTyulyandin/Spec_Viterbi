@@ -9,14 +9,15 @@ HMM::Mod_prob_vec_t GraphBLAS_impl::run_Viterbi(const HMM& hmm, const HMM::Emit_
     auto info = GrB_Matrix_new(&result, GrB_FP32, hmm.states_num, 1);
     GraphBLAS_helper::check_for_error(info);
 
-    auto n_zeroes_ind = std::vector<GrB_Index>(hmm.states_num, 0);
+    auto n_zeroes_ind = std::vector<GrB_Index>(hmm.non_zero_start_probs, 0);
     auto from_0_to_n_ind = std::vector<GrB_Index>(hmm.states_num);
     for (size_t i = 0; i < hmm.states_num; ++i) {
         from_0_to_n_ind[i] = i;
     }
 
-    info = GrB_Matrix_build_FP32(result, from_0_to_n_ind.data(), n_zeroes_ind.data(),
-                                 hmm.start_probabilities.data(), hmm.states_num, GrB_FIRST_FP32);
+    info = GrB_Matrix_build_FP32(result, hmm.start_probabilities_cols.data(), n_zeroes_ind.data(),
+                                 hmm.start_probabilities.data(), hmm.non_zero_start_probs,
+                                 GrB_FIRST_FP32);
     GraphBLAS_helper::check_for_error(info);
 
     // Emission probabilities matrices
