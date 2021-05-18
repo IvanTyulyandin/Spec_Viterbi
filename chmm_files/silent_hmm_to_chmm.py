@@ -8,7 +8,7 @@ def neg_ln_to_prob(prob_inside_ln: float):
 
 
 def to_fixed(fl: float):
-    return "{:.5f}".format(float(fl))
+    return "{:.10f}".format(float(fl))
 
 
 def floats_to_fixed(data: list):
