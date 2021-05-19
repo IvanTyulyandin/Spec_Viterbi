@@ -62,7 +62,6 @@ HMM::Mod_prob_vec_t GraphBLAS_impl::run_Viterbi(const HMM& hmm, const HMM::Emit_
     std::swap(result, next_probabilites);
 
     for (size_t i = 1; i < seq.size(); ++i) {
-
         GraphBLAS_helper::min_plus_mat_multiply(em_probs[seq[i]], transposed_transitions,
                                                 prob_x_trans);
         GrB_Matrix_wait(&prob_x_trans);

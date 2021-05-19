@@ -2,6 +2,7 @@
 #include "../Viterbi_impl/CUSP_spec_impl.h"
 #include "../Viterbi_impl/GraphBLAS_impl.h"
 #include "../Viterbi_impl/GraphBLAS_spec_impl.h"
+#include "../Viterbi_impl/cuASR_impl.h"
 #include "test_helper.h"
 
 #include <experimental/filesystem>
@@ -34,6 +35,7 @@ int main() {
             auto non_spec_impls = std::vector<std::shared_ptr<Viterbi_impl>>();
             non_spec_impls.push_back(std::make_shared<GraphBLAS_impl>());
             non_spec_impls.push_back(std::make_shared<CUSP_impl>());
+            non_spec_impls.push_back(std::make_shared<cuASR_impl>());
             auto non_spec_last_answer = HMM::Mod_prob_vec_t();
 
             // Setup specialized implementations

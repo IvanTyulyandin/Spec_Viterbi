@@ -4,7 +4,9 @@
 #include "cuasr/gemm/device/srgemm.h"
 #include "cuasr/functional.h"
 
+#include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <experimental/source_location>
 #include <iostream>
 
@@ -22,6 +24,12 @@ void check_for_cuda_error(
     }
 #endif
 }
+
+void set_to_zero_prob(HMM::Mod_prob_t* data, size_t how_much) {
+    for (size_t i = 0; i < how_much; ++i) {
+        data[i] = HMM::zero_prob;
+    }
+}
 }
 
 
@@ -33,16 +41,28 @@ using MultiplicationOp = cuasr::plus<float>;
 using RowMajor = cutlass::layout::RowMajor;
 
 using cuASR_MinPlus_SGEMM = cuasr::gemm::device::Srgemm<
-      AdditionOp, MultiplicationOp,
-      HMM::Mod_prob_t, RowMajor,
-      HMM::Mod_prob_t, RowMajor,
-      HMM::Mod_prob_t, RowMajor,
-      HMM::Mod_prob_t
-      >;
+    AdditionOp, MultiplicationOp,
+    HMM::Mod_prob_t, RowMajor,
+    HMM::Mod_prob_t, RowMajor,
+    HMM::Mod_prob_t, RowMajor,
+    HMM::Mod_prob_t
+    >;
 
-Dev_mat::Dev_mat(HMM::Mod_prob_t* data, int rows, int cols, size_t bytes_size)
-    : data(data), rows(rows), cols(cols), bytes_size(bytes_size)
-{}
+Dev_mat::Dev_mat(HMM::Mod_prob_t* host_data, int rows, int cols, size_t bytes_size)
+    : rows(rows), cols(cols), bytes_size(bytes_size)
+{
+    if (host_data == nullptr) {
+        auto host_init_data = new HMM::Mod_prob_t[rows * cols];
+        set_to_zero_prob(host_init_data, rows * cols);
+        cudaMalloc((void **)&data, bytes_size);
+        check_for_cuda_error();
+        cudaMemcpy(data, host_init_data, bytes_size, cudaMemcpyHostToDevice);
+        check_for_cuda_error();
+    } else {
+        cudaMemcpy(data, host_data, bytes_size, cudaMemcpyHostToDevice);
+        check_for_cuda_error();
+    }
+}
 
 Dev_mat::Dev_mat(const Dev_mat& rhs) {
     rows = rhs.rows;
@@ -60,13 +80,6 @@ Dev_mat::~Dev_mat() {
 }
 
 void min_plus_Dev_mat_multiply(const Dev_mat& lhs, const Dev_mat& rhs, Dev_mat& res) {
-    if (res.data == nullptr) {
-        cudaMalloc((void **)&(res.data), sizeof(HMM::Mod_prob_t) * lhs.rows * rhs.cols);
-        check_for_cuda_error();
-        res.rows = lhs.rows;
-        res.cols = rhs.cols;
-    }
-
 #ifndef NDEBUG
     if (lhs.cols != rhs.rows) {
         std::cerr << "cuASR: lhs and rhs cols/rows mismatch! "
@@ -85,11 +98,11 @@ void min_plus_Dev_mat_multiply(const Dev_mat& lhs, const Dev_mat& rhs, Dev_mat& 
     }
 #endif
     auto args = cuASR_MinPlus_SGEMM::Arguments(
-        {lhs.rows, lhs.cols, rhs.cols},
-        {lhs.data, lhs.rows},
-        {rhs.data, rhs.rows},
-        {res.data, res.rows},
-        {res.data, res.rows},
+        {res.rows, res.cols, lhs.cols},
+        {lhs.data, lhs.cols},
+        {rhs.data, rhs.cols},
+        {res.data, res.cols},
+        {res.data, res.cols},
         {MultiplicationOp::Identity, MultiplicationOp::Annihilator}
     );
 
@@ -108,13 +121,17 @@ HMM::Mod_prob_vec_t Dev_mat_to_Prob_vec(const Dev_mat& mat) {
 #ifndef NDEBUG
     if (mat.cols != 1) {
         std::cerr << "Error! cuASR Dev_mat is not a column!\n";
-        return {};
     }
 #endif
-    auto host_data = new HMM::Mod_prob_t[mat.rows];
+    auto host_data = new HMM::Mod_prob_t[mat.rows * mat.cols];
     cudaMemcpy(host_data, mat.data, mat.bytes_size, cudaMemcpyDeviceToHost);
     check_for_cuda_error();
-    auto res = HMM::Mod_prob_vec_t(host_data, host_data + mat.rows);
+    auto res = HMM::Mod_prob_vec_t(host_data, host_data + mat.rows * mat.cols);
+    std::replace_if(res.begin(), res.end(), 
+        [](auto prob) {
+            return HMM::almost_equal(std::numeric_limits<HMM::Mod_prob_t>::max(), prob);
+        },
+        HMM::zero_prob);
     delete(host_data);
     return res;
 }
@@ -124,12 +141,14 @@ void init_matrices_from_HMM(const HMM& hmm, Dev_mat& start_pr, Dev_mat& transp_t
 {
     // Column for start probs
     auto start_host_ptr = new HMM::Mod_prob_t[hmm.states_num];
+    set_to_zero_prob(start_host_ptr, hmm.states_num);
     for (size_t i = 0; i < hmm.non_zero_start_probs; ++i) {
         start_host_ptr[hmm.start_probabilities_cols[i]] = hmm.start_probabilities[i];
     }
 
     // Row major transposed transition matrix
     auto transp_tr_host_ptr = new HMM::Mod_prob_t[hmm.states_num * hmm.states_num];
+    set_to_zero_prob(transp_tr_host_ptr, hmm.states_num * hmm.states_num);
     for (size_t i = 0; i < hmm.trans_num; ++i) {
         auto row = hmm.trans_cols[i];
         auto col = hmm.trans_rows[i];
@@ -142,6 +161,7 @@ void init_matrices_from_HMM(const HMM& hmm, Dev_mat& start_pr, Dev_mat& transp_t
     for (size_t i = 0; i < hmm.emit_num; ++i) {
         auto& m = emit_mat_vec_host[i];
         m = new HMM::Mod_prob_t[hmm.states_num * hmm.states_num];
+        set_to_zero_prob(m, hmm.states_num * hmm.states_num);
         for (size_t j = 0; j < hmm.states_num; ++j) {
             m[j * hmm.states_num + j] = hmm.emissions[i][j];
         }
@@ -162,9 +182,7 @@ void init_matrices_from_HMM(const HMM& hmm, Dev_mat& start_pr, Dev_mat& transp_t
         };
     }
 
-
     // Allocate device memory
-
     cudaMalloc((void **)&start_pr.data, start_pr.bytes_size);
     check_for_cuda_error();
     cudaMalloc((void **)&transp_tr.data, transp_tr.bytes_size);

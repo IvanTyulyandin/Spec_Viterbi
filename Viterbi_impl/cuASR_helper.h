@@ -7,7 +7,7 @@ namespace cuASR_helper {
 class Dev_mat {
   public:
     Dev_mat() = default;
-    Dev_mat(HMM::Mod_prob_t* data, int rows, int cols, size_t bytes_size);
+    Dev_mat(HMM::Mod_prob_t* host_data, int rows, int cols, size_t bytes_size);
     Dev_mat(const Dev_mat& rhs);
     ~Dev_mat();
 

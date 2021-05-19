@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(Spec_Viterbi LANGUAGES CXX CUDA)
 
-add_library(Viterbi_helper STATIC
+add_library(Viterbi_helper SHARED
     # Data storage and parsing
     HMM.h
     data_reader.h data_reader.cpp
@@ -12,7 +12,7 @@ add_library(Viterbi_helper STATIC
 
 
 # GraphBLAS version
-add_library(Viterbi_GraphBLAS SHARED
+add_library(Viterbi_GraphBLAS STATIC
     GraphBLAS_helper.h GraphBLAS_helper.cpp
     GraphBLAS_impl.h GraphBLAS_impl.cpp
     GraphBLAS_spec_impl.h GraphBLAS_spec_impl.cpp
