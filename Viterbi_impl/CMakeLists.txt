@@ -52,6 +52,7 @@ set(CUASR_CUDA_ARCHS "60 61")
 add_library(Viterbi_cuASR SHARED
     cuASR_helper.h cuASR_helper.cu
     cuASR_impl.h cuASR_impl.cu
+    cuASR_spec_impl.h cuASR_spec_impl.cu
 )
 
 set_target_properties(Viterbi_cuASR PROPERTIES CUDA_STANDARD 14)

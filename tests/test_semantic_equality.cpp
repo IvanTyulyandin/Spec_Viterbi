@@ -3,6 +3,7 @@
 #include "../Viterbi_impl/GraphBLAS_impl.h"
 #include "../Viterbi_impl/GraphBLAS_spec_impl.h"
 #include "../Viterbi_impl/cuASR_impl.h"
+#include "../Viterbi_impl/cuASR_spec_impl.h"
 #include "test_helper.h"
 
 #include <experimental/filesystem>
@@ -49,6 +50,9 @@ int main() {
             spec_impls.back()->spec_with(hmm);
 
             spec_impls.push_back(std::shared_ptr<CUSP_spec_impl>(new CUSP_spec_impl(1)));
+            spec_impls.back()->spec_with(hmm);
+
+            spec_impls.push_back(std::shared_ptr<cuASR_spec_impl>(new cuASR_spec_impl(1)));
             spec_impls.back()->spec_with(hmm);
 
             auto spec_last_answer = HMM::Mod_prob_vec_t();

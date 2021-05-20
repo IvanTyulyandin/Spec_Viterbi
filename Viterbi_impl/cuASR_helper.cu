@@ -30,6 +30,21 @@ void set_to_zero_prob(HMM::Mod_prob_t* data, size_t how_much) {
         data[i] = HMM::zero_prob;
     }
 }
+
+void copy_Dev_mat(cuASR_helper::Dev_mat& lhs, const cuASR_helper::Dev_mat& rhs) {
+    lhs.rows = rhs.rows;
+    lhs.cols = rhs.cols;
+    lhs.bytes_size = rhs.bytes_size;
+    cudaMalloc((void **)&(lhs.data), (lhs.bytes_size));
+    check_for_cuda_error();
+    cudaMemcpy(lhs.data, rhs.data, lhs.bytes_size, cudaMemcpyDeviceToDevice);
+    check_for_cuda_error();
+}
+
+void cuda_matrix_deleter(cuASR_helper::Dev_mat& mat) {
+    cudaFree(static_cast<void*>(mat.data));
+    check_for_cuda_error();
+}
 }
 
 
@@ -65,22 +80,24 @@ Dev_mat::Dev_mat(HMM::Mod_prob_t* host_data, int rows, int cols, size_t bytes_si
 }
 
 Dev_mat::Dev_mat(const Dev_mat& rhs) {
-    rows = rhs.rows;
-    cols = rhs.cols;
-    bytes_size = rhs.bytes_size;
-    cudaMalloc((void **)&data, bytes_size);
-    check_for_cuda_error();
-    cudaMemcpy(rhs.data, data, bytes_size, cudaMemcpyDeviceToDevice);
-    check_for_cuda_error();
+    copy_Dev_mat(*this, rhs);
+}
+
+Dev_mat& Dev_mat::operator=(const Dev_mat& rhs) {
+    cuda_matrix_deleter(*this);
+    copy_Dev_mat(*this, rhs);
+    return *this;
 }
 
 Dev_mat::~Dev_mat() {
-    cudaFree(static_cast<void*>(data));
-    check_for_cuda_error();
+    cuda_matrix_deleter(*this);
 }
 
 void min_plus_Dev_mat_multiply(const Dev_mat& lhs, const Dev_mat& rhs, Dev_mat& res) {
-#ifndef NDEBUG
+    if (res.data == nullptr) {
+        res = Dev_mat(nullptr, lhs.rows, rhs.cols, sizeof(HMM::Mod_prob_t) * lhs.rows * rhs.cols);
+    }
+    #ifndef NDEBUG
     if (lhs.cols != rhs.rows) {
         std::cerr << "cuASR: lhs and rhs cols/rows mismatch! "
             << "Lhs.cols is " << lhs.cols << ". "

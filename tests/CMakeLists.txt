@@ -40,6 +40,10 @@ add_executable(test_cuASR_impl test_cuASR_impl.cpp test_helper.h)
 target_link_libraries(test_cuASR_impl Spec_Viterbi)
 add_test(test_cuASR_impl test_cuASR_impl)
 
+add_executable(test_cuASR_spec_impl test_cuASR_spec_impl.cpp test_helper.h)
+target_link_libraries(test_cuASR_spec_impl Spec_Viterbi)
+add_test(test_cuASR_spec_impl test_cuASR_spec_impl)
+
 # Semantic equvivalence test
 
 add_executable(test_semantic_equality test_semantic_equality.cpp test_helper.h)
