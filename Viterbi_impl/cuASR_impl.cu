@@ -1,7 +1,7 @@
 #include "cuASR_impl.h"
 
-#include <iostream>
 #include "cuASR_helper.h"
+#include <iostream>
 
 HMM::Mod_prob_vec_t cuASR_impl::run_Viterbi(const HMM& hmm, const HMM::Emit_seq_t& seq) const {
 
@@ -11,11 +11,11 @@ HMM::Mod_prob_vec_t cuASR_impl::run_Viterbi(const HMM& hmm, const HMM::Emit_seq_
     cuASR_helper::init_matrices_from_HMM(hmm, start_pr_dev, transp_tr_dev, emit_mat_vec_dev);
 
     // Start Viterbi
-    auto res = cuASR_helper::Dev_mat(nullptr, hmm.states_num, 1, sizeof(HMM::Mod_prob_t) * hmm.states_num * 1);
+    auto res = cuASR_helper::Dev_mat(hmm.states_num, 1);
     cuASR_helper::min_plus_Dev_mat_multiply(emit_mat_vec_dev[seq[0]], start_pr_dev, res);
 
     for (size_t i = 1; i < seq.size(); ++i) {
-        auto tmp = cuASR_helper::Dev_mat(nullptr, hmm.states_num, 1, sizeof(HMM::Mod_prob_t) * hmm.states_num * 1);
+        auto tmp = cuASR_helper::Dev_mat(hmm.states_num, 1);
         cuASR_helper::min_plus_Dev_mat_multiply(transp_tr_dev, res, tmp);
         cuASR_helper::min_plus_Dev_mat_multiply(emit_mat_vec_dev[seq[i]], tmp, res);
     }

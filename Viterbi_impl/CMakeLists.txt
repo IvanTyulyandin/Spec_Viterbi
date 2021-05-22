@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(Spec_Viterbi LANGUAGES CXX CUDA)
 
-add_library(Viterbi_helper SHARED
+add_library(Viterbi_helper STATIC
     # Data storage and parsing
     HMM.h
     data_reader.h data_reader.cpp
@@ -12,7 +12,7 @@ add_library(Viterbi_helper SHARED
 
 
 # GraphBLAS version
-add_library(Viterbi_GraphBLAS STATIC
+add_library(Viterbi_GraphBLAS SHARED
     GraphBLAS_helper.h GraphBLAS_helper.cpp
     GraphBLAS_impl.h GraphBLAS_impl.cpp
     GraphBLAS_spec_impl.h GraphBLAS_spec_impl.cpp
@@ -22,7 +22,8 @@ target_link_libraries(Viterbi_GraphBLAS Viterbi_helper OpenMP::OpenMP_CXX graphb
 
 
 # both for CUSP and cuASR versions
-set(CMAKE_CUDA_FLAGS_RELEASE "--optimize 3 --generate-line-info -DNDEBUG")
+set(CMAKE_CUDA_FLAGS_DEBUG "-G")
+set(CMAKE_CUDA_FLAGS_RELEASE "--optimize 3 --generate-line-info -DNDEBUG -gencode arch=compute_60,code=sm_60")
 
 # CUSP version
 add_library(cusp INTERFACE)

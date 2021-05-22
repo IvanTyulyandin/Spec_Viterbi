@@ -4,7 +4,7 @@ mkdir -p cmake_build
 cd cmake_build
 
 CMAKE_ARGS='
-    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_C_COMPILER=gcc \
     -DCMAKE_CXX_COMPILER=g++ \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \'
