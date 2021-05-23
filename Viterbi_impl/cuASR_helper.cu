@@ -32,8 +32,11 @@ void set_to_zero_prob(HMM::Mod_prob_t* data, size_t how_much) {
 }
 
 void cuda_matrix_deleter(cuASR_helper::Dev_mat& mat) {
-    cudaFree(static_cast<void*>(mat.data));
-    check_for_cuda_error();
+    if (mat.data != nullptr) {
+        cudaFree(static_cast<void*>(mat.data));
+        check_for_cuda_error();
+        mat.data = nullptr;
+    }
 }
 
 void copy_Dev_mat(cuASR_helper::Dev_mat& lhs, const cuASR_helper::Dev_mat& rhs) {
@@ -45,6 +48,15 @@ void copy_Dev_mat(cuASR_helper::Dev_mat& lhs, const cuASR_helper::Dev_mat& rhs) 
     check_for_cuda_error();
     cudaMemcpy((void*)lhs.data, (const void*)rhs.data, lhs.bytes_size, cudaMemcpyDeviceToDevice);
     check_for_cuda_error();
+}
+
+void move_Dev_mat(cuASR_helper::Dev_mat& lhs, cuASR_helper::Dev_mat&& rhs) {
+    cuda_matrix_deleter(lhs);
+    lhs.rows = rhs.rows;
+    lhs.cols = rhs.cols;
+    lhs.bytes_size = rhs.bytes_size;
+    lhs.data = rhs.data;
+    rhs.data = nullptr;
 }
 } // namespace
 
@@ -66,20 +78,38 @@ Dev_mat::Dev_mat(int rows, int cols)
     check_for_cuda_error();
 }
 
-Dev_mat::Dev_mat(const Dev_mat& rhs) { copy_Dev_mat(*this, rhs); }
+Dev_mat::Dev_mat(const Dev_mat& rhs) : data(nullptr) { copy_Dev_mat(*this, rhs); }
 
 Dev_mat& Dev_mat::operator=(const Dev_mat& rhs) {
-    cuda_matrix_deleter(*this);
     copy_Dev_mat(*this, rhs);
+    return *this;
+}
+
+Dev_mat::Dev_mat(Dev_mat&& rhs) : data(nullptr) { move_Dev_mat(*this, std::move(rhs)); }
+
+Dev_mat& Dev_mat::operator=(Dev_mat&& rhs) {
+    move_Dev_mat(*this, std::move(rhs));
     return *this;
 }
 
 Dev_mat::~Dev_mat() { cuda_matrix_deleter(*this); }
 
-void min_plus_Dev_mat_multiply(const Dev_mat& lhs, const Dev_mat& rhs, Dev_mat& res) {
-    if (res.data == nullptr) {
-        res = Dev_mat(lhs.rows, rhs.cols);
+void validate_Dev_mat_ptr(const Dev_mat& mat, const std::string& msg) {
+    auto attr = cudaPointerAttributes();
+    cudaPointerGetAttributes(&attr, (const void*)mat.data);
+    if (attr.memoryType != cudaMemoryTypeDevice) {
+        std::cout << "Not a device pointer " << msg << ", is host/unregistered? "
+                  << (attr.memoryType == cudaMemoryTypeHost) << ' '
+                  << (attr.memoryType == cudaMemoryTypeUnregistered) << '\n';
+    } else {
+        std::cout << "OK " << msg << '\n';
     }
+}
+
+void min_plus_Dev_mat_multiply(const Dev_mat& lhs, const Dev_mat& rhs, Dev_mat& res) {
+    cuda_matrix_deleter(res);
+    res = Dev_mat(lhs.rows, rhs.cols);
+    validate_Dev_mat_ptr(res, "res");
 #ifndef NDEBUG
     if (lhs.cols != rhs.rows) {
         std::cerr << "cuASR: lhs and rhs cols/rows mismatch! "

@@ -84,15 +84,26 @@ void cuASR_spec_impl::initializer(const HMM& hmm, size_t level) {
     auto transp_tr_dev = cuASR_helper::Dev_mat();
     auto emit_mat_vec_dev = std::vector<cuASR_helper::Dev_mat>();
     cuASR_helper::init_matrices_from_HMM(hmm, start_pr_dev, transp_tr_dev, emit_mat_vec_dev);
+    cuASR_helper::validate_Dev_mat_ptr(start_pr_dev, std::string("start_pr_dev"));
+    cuASR_helper::validate_Dev_mat_ptr(transp_tr_dev, std::string("transp_tr_dev"));
 
     // Set up emit_pr_x_start_pr and emit_pr_x_trans_pr
     emit_pr_x_start_pr = std::vector<cuASR_helper::Dev_mat>(hmm.emit_num);
     emit_pr_x_trans_pr = std::vector<cuASR_helper::Dev_mat>(hmm.emit_num);
     for (size_t i = 0; i < hmm.emit_num; ++i) {
+        cuASR_helper::validate_Dev_mat_ptr(emit_mat_vec_dev[i], std::string("emit_mat_vec_dev[") +
+                                                                    std::to_string(i) +
+                                                                    std::string("]"));
         cuASR_helper::min_plus_Dev_mat_multiply(emit_mat_vec_dev[i], start_pr_dev,
-                                               emit_pr_x_start_pr[i]);
+                                                emit_pr_x_start_pr[i]);
+        cuASR_helper::validate_Dev_mat_ptr(emit_pr_x_start_pr[i],
+                                           std::string("emit_pr_x_start_pr[") + std::to_string(i) +
+                                               std::string("]"));
         cuASR_helper::min_plus_Dev_mat_multiply(emit_mat_vec_dev[i], transp_tr_dev,
-                                               emit_pr_x_trans_pr[i]);
+                                                emit_pr_x_trans_pr[i]);
+        cuASR_helper::validate_Dev_mat_ptr(emit_pr_x_trans_pr[i],
+                                           std::string("emit_pr_x_trans_pr[") + std::to_string(i) +
+                                               std::string("]"));
     }
 
     // Set up handlers
