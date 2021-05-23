@@ -94,7 +94,9 @@ Dev_mat& Dev_mat::operator=(Dev_mat&& rhs) {
 
 Dev_mat::~Dev_mat() { cuda_matrix_deleter(*this); }
 
-void validate_Dev_mat_ptr(const Dev_mat& mat, const std::string& msg) {
+void validate_Dev_mat_ptr([[maybe_unused]] const Dev_mat& mat,
+                          [[maybe_unused]] const std::string& msg) {
+#ifndef NDEBUG
     auto attr = cudaPointerAttributes();
     cudaPointerGetAttributes(&attr, (const void*)mat.data);
     if (attr.memoryType != cudaMemoryTypeDevice) {
@@ -104,6 +106,7 @@ void validate_Dev_mat_ptr(const Dev_mat& mat, const std::string& msg) {
     } else {
         std::cout << "OK " << msg << '\n';
     }
+#endif
 }
 
 void min_plus_Dev_mat_multiply(const Dev_mat& lhs, const Dev_mat& rhs, Dev_mat& res) {

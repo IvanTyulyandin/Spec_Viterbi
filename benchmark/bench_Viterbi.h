@@ -1,6 +1,7 @@
 #include "../Viterbi_impl/CUSP_impl.h"
 #include "../Viterbi_impl/GraphBLAS_helper.h"
 #include "../Viterbi_impl/GraphBLAS_impl.h"
+#include "../Viterbi_impl/cuASR_impl.h"
 #include "../Viterbi_impl/data_reader.h"
 #include "benchmark_helper.h"
 
@@ -23,10 +24,11 @@ void benchmark_Viterbi_impls_to_dat_file(const helper::Folder_path_t& chmm_folde
 
     // Benchmarked implementations
     const auto impls_to_bench =
-        Vec_Viterbi_impls_t({std::make_shared<GraphBLAS_impl>(), std::make_shared<CUSP_impl>()});
+        Vec_Viterbi_impls_t({std::make_shared<GraphBLAS_impl>(), std::make_shared<CUSP_impl>(),
+                             std::make_shared<cuASR_impl>()});
 
     // Headers for .dat file
-    const auto headers = benchmark::helper::Headers_t({"States", "GraphBLAS", "CUSP"});
+    const auto headers = benchmark::helper::Headers_t({"States", "GraphBLAS", "CUSP", "cuASR"});
 
     auto bench = benchmark::helper::States_time_map();
 

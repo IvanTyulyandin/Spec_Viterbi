@@ -1,5 +1,6 @@
 #include "../Viterbi_impl/CUSP_spec_impl.h"
 #include "../Viterbi_impl/GraphBLAS_spec_impl.h"
+#include "../Viterbi_impl/cuASR_spec_impl.h"
 #include "../Viterbi_impl/data_reader.h"
 #include "benchmark_helper.h"
 
@@ -37,6 +38,12 @@ void benchmark_Viterbi_spec_impls_to_dat_file(const helper::Folder_path_t& chmm_
         impls_to_bench.push_back(std::make_shared<CUSP_spec_impl>(i));
         headers.push_back("CUSP_spec_" + std::to_string(i) + "_prep");
         headers.push_back("CUSP_spec_" + std::to_string(i));
+    }
+
+    for (size_t i = 1; i <= LEVELS - 1; ++i) {
+        impls_to_bench.push_back(std::make_shared<cuASR_spec_impl>(i));
+        headers.push_back("cuASR_spec_" + std::to_string(i) + "_prep");
+        headers.push_back("cuASR_spec_" + std::to_string(i));
     }
 
     auto bench = benchmark::helper::States_time_map();
