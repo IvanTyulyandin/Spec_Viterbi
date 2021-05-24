@@ -20,6 +20,7 @@ class Dev_mat {
     int rows;
     int cols;
     size_t bytes_size;
+    static int allocs;
 };
 
 void validate_Dev_mat_ptr(const Dev_mat& mat, const std::string& msg);

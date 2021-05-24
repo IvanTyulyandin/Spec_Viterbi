@@ -34,6 +34,7 @@ void set_to_zero_prob(HMM::Mod_prob_t* data, size_t how_much) {
 void cuda_matrix_deleter(cuASR_helper::Dev_mat& mat) {
     if (mat.data != nullptr) {
         cudaFree(static_cast<void*>(mat.data));
+        mat.allocs--;
         check_for_cuda_error();
         mat.data = nullptr;
     }
@@ -46,6 +47,7 @@ void copy_Dev_mat(cuASR_helper::Dev_mat& lhs, const cuASR_helper::Dev_mat& rhs) 
     lhs.bytes_size = rhs.bytes_size;
     cudaMalloc((void**)&(lhs.data), lhs.bytes_size);
     check_for_cuda_error();
+    lhs.allocs++;
     cudaMemcpy((void*)lhs.data, (const void*)rhs.data, lhs.bytes_size, cudaMemcpyDeviceToDevice);
     check_for_cuda_error();
 }
@@ -62,6 +64,8 @@ void move_Dev_mat(cuASR_helper::Dev_mat& lhs, cuASR_helper::Dev_mat&& rhs) {
 
 namespace cuASR_helper {
 
+int Dev_mat::allocs = 0;
+
 using AdditionOp = cuasr::minimum<float>;
 using MultiplicationOp = cuasr::plus<float>;
 
@@ -76,6 +80,7 @@ Dev_mat::Dev_mat(int rows, int cols)
     : rows(rows), cols(cols), bytes_size(rows * cols * sizeof(HMM::Mod_prob_t)) {
     cudaMalloc((void**)&data, bytes_size);
     check_for_cuda_error();
+    allocs++;
 }
 
 Dev_mat::Dev_mat(const Dev_mat& rhs) : data(nullptr) { copy_Dev_mat(*this, rhs); }
@@ -208,11 +213,14 @@ void init_matrices_from_HMM(const HMM& hmm, Dev_mat& start_pr, Dev_mat& transp_t
     // Allocate device memory
     cudaMalloc((void**)&start_pr.data, start_pr.bytes_size);
     check_for_cuda_error();
+    start_pr.allocs++;
     cudaMalloc((void**)&transp_tr.data, transp_tr.bytes_size);
     check_for_cuda_error();
+    transp_tr.allocs++;
     for (size_t i = 0; i < hmm.emit_num; ++i) {
         cudaMalloc((void**)&(emit_mat_vec[i].data), emit_mat_vec[i].bytes_size);
         check_for_cuda_error();
+        emit_mat_vec[i].allocs++;
     }
 
     // Transfer data to device
