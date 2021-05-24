@@ -210,19 +210,6 @@ void init_matrices_from_HMM(const HMM& hmm, Dev_mat& start_pr, Dev_mat& transp_t
         emit_mat_vec[i] = Dev_mat((int)hmm.states_num, (int)hmm.states_num);
     }
 
-    // Allocate device memory
-    cudaMalloc((void**)&start_pr.data, start_pr.bytes_size);
-    check_for_cuda_error();
-    start_pr.allocs++;
-    cudaMalloc((void**)&transp_tr.data, transp_tr.bytes_size);
-    check_for_cuda_error();
-    transp_tr.allocs++;
-    for (size_t i = 0; i < hmm.emit_num; ++i) {
-        cudaMalloc((void**)&(emit_mat_vec[i].data), emit_mat_vec[i].bytes_size);
-        check_for_cuda_error();
-        emit_mat_vec[i].allocs++;
-    }
-
     // Transfer data to device
     cudaMemcpy((void*)start_pr.data, (const void*)start_host_ptr, start_pr.bytes_size,
                cudaMemcpyHostToDevice);
