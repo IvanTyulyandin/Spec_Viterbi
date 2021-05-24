@@ -20,7 +20,7 @@ const auto expected_results = std::vector(
      HMM::Mod_prob_vec_t{HMM::to_modified_prob(0.00882), HMM::to_modified_prob(0.02646)},
      HMM::Mod_prob_vec_t{HMM::to_modified_prob(0), HMM::to_modified_prob(0.00000282),
                          HMM::to_modified_prob(0.0000181), HMM::to_modified_prob(0.00000605)}});
-constexpr auto LEVELS_TO_TEST = 7;
+constexpr auto LEVELS_TO_TEST = 3;
 
 bool compare_two_answers(const HMM::Mod_prob_vec_t& lhs, const HMM::Mod_prob_vec_t& rhs) {
     auto are_equal = true;

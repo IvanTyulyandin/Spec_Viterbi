@@ -34,7 +34,6 @@ void set_to_zero_prob(HMM::Mod_prob_t* data, size_t how_much) {
 void cuda_matrix_deleter(cuASR_helper::Dev_mat& mat) {
     if (mat.data != nullptr) {
         cudaFree(static_cast<void*>(mat.data));
-        mat.allocs--;
         check_for_cuda_error();
         mat.data = nullptr;
     }
@@ -47,7 +46,6 @@ void copy_Dev_mat(cuASR_helper::Dev_mat& lhs, const cuASR_helper::Dev_mat& rhs) 
     lhs.bytes_size = rhs.bytes_size;
     cudaMalloc((void**)&(lhs.data), lhs.bytes_size);
     check_for_cuda_error();
-    lhs.allocs++;
     cudaMemcpy((void*)lhs.data, (const void*)rhs.data, lhs.bytes_size, cudaMemcpyDeviceToDevice);
     check_for_cuda_error();
 }
@@ -64,8 +62,6 @@ void move_Dev_mat(cuASR_helper::Dev_mat& lhs, cuASR_helper::Dev_mat&& rhs) {
 
 namespace cuASR_helper {
 
-int Dev_mat::allocs = 0;
-
 using AdditionOp = cuasr::minimum<float>;
 using MultiplicationOp = cuasr::plus<float>;
 
@@ -80,7 +76,6 @@ Dev_mat::Dev_mat(int rows, int cols)
     : rows(rows), cols(cols), bytes_size(rows * cols * sizeof(HMM::Mod_prob_t)) {
     cudaMalloc((void**)&data, bytes_size);
     check_for_cuda_error();
-    allocs++;
 }
 
 Dev_mat::Dev_mat(const Dev_mat& rhs) : data(nullptr) { copy_Dev_mat(*this, rhs); }
@@ -108,8 +103,6 @@ void validate_Dev_mat_ptr([[maybe_unused]] const Dev_mat& mat,
         std::cout << "Not a device pointer " << msg << ", is host/unregistered? "
                   << (attr.memoryType == cudaMemoryTypeHost) << ' '
                   << (attr.memoryType == cudaMemoryTypeUnregistered) << '\n';
-    } else {
-        std::cout << "OK " << msg << '\n';
     }
 #endif
 }
